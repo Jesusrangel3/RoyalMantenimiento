@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial - Taller CIF</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-truck me-2 fs-3"></i>
+                <strong>Taller CIF</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard Taller</a></li>
+                    {% if current_user.perm_checklist_acceso or current_user.role == 'Superusuario' %}
+                    <li class="nav-item"><a class="nav-link" href="/checklist">Checklist Rápido</a></li>
+                    {% endif %}
+                    {% if current_user.role in ['Gerente', 'Superusuario'] %}
+                    <li class="nav-item"><a class="nav-link" href="/stats">Estadísticas Taller</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/reportes">Historial Taller</a></li>
+                    {% endif %}
+                    {% if current_user.role == 'Superusuario' %}
+                    <li class="nav-item"><a class="nav-link text-warning" href="/admin"><i class="bi bi-gear-fill"></i> Panel Admin</a></li>
+                    {% endif %}
+                </ul>
+                <div class="d-flex align-items-center text-white">
+                    <span class="me-3"><i class="bi bi-person-circle"></i> {{ current_user.username }}</span>
+                    <a href="/logout" class="btn btn-outline-light btn-sm">Salir</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h4 class="fw-bold mb-0"><i class="bi bi-archive-fill text-secondary me-2"></i>Historial de Unidades Archivadas</h4>
+            <div class="input-group shadow-sm" style="max-width:300px;">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" id="search-reportes" class="form-control" placeholder="Buscar económico o motivo...">
+            </div>
+        </div>
+
+        <div id="reportes-loading" class="text-center py-5">
+            <div class="spinner-border text-secondary" role="status"></div>
+            <p class="text-muted mt-2">Cargando historial...</p>
+        </div>
+
+        <div class="card shadow-sm border-0" id="tabla-reportes-card" style="display:none;">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="tabla-reportes">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-4">Económico</th>
+                                <th>Tipo</th>
+                                <th>Motivo</th>
+                                <th>Área</th>
+                                <th>Entrada</th>
+                                <th>Días Est.</th>
+                                <th>Días Real</th>
+                                <th>Última Act.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-reportes"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="reportes-empty" class="text-center py-5" style="display:none;">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <p class="text-muted mt-2">No hay unidades archivadas.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let allReportes = [];
+
+    async function cargarReportes() {
+        try {
+            const res = await fetch('/api/reportes');
+            allReportes = await res.json();
+            document.getElementById('reportes-loading').style.display = 'none';
+            renderReportes(allReportes);
+        } catch(e) {
+            document.getElementById('reportes-loading').innerHTML = '<div class="alert alert-danger">Error al cargar los datos.</div>';
+        }
+    }
+
+    function renderReportes(data) {
+        const tbody = document.getElementById('tbody-reportes');
+        if (!data || data.length === 0) {
+            document.getElementById('tabla-reportes-card').style.display = 'none';
+            document.getElementById('reportes-empty').style.display = 'block';
+            return;
+        }
+        document.getElementById('tabla-reportes-card').style.display = 'block';
+        document.getElementById('reportes-empty').style.display = 'none';
+
+        tbody.innerHTML = data.map(e => {
+            const excedido = e.excedido_por > 0;
+            const razones = Array.isArray(e.razones) ? e.razones.join(', ') : e.razones;
+            return `<tr>
+                <td class="ps-4"><strong>${e.numero_economico}</strong></td>
+                <td><span class="badge bg-secondary">${e.tipo_vehiculo || '-'}</span></td>
+                <td>${razones || '-'}</td>
+                <td>${e.area_name}</td>
+                <td>${e.fecha_entrada_str}</td>
+                <td class="text-center">${e.dias_estimados}</td>
+                <td class="text-center">
+                    <span class="badge ${excedido ? 'bg-danger' : 'bg-success'}">${e.dias_en_taller} días</span>
+                    ${excedido ? `<span class="badge bg-warning text-dark ms-1">+${e.excedido_por}</span>` : ''}
+                </td>
+                <td class="text-muted small">${e.last_updated_str}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    document.getElementById('search-reportes').addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        const filtrado = allReportes.filter(e =>
+            e.numero_economico.toLowerCase().includes(q) ||
+            (Array.isArray(e.razones) ? e.razones.join(' ') : e.razones || '').toLowerCase().includes(q) ||
+            (e.otros_motivos || '').toLowerCase().includes(q)
+        );
+        renderReportes(filtrado);
+    });
+
+    cargarReportes();
+    </script>
+</body>
+</html>

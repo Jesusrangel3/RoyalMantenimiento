@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Taller CIF</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="bi bi-gear-fill me-2 fs-3 text-warning"></i>
+                <strong>Panel Admin - Taller CIF</strong>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Dashboard Taller</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/stats">Estadísticas</a></li>
+                    <li class="nav-item"><a class="nav-link active text-warning" href="/admin"><i class="bi bi-gear-fill"></i> Panel Admin</a></li>
+                </ul>
+                <div class="d-flex align-items-center text-white">
+                    <span class="me-3"><i class="bi bi-person-circle"></i> {{ current_user.username }}</span>
+                    <a href="/logout" class="btn btn-outline-light btn-sm">Salir</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4">
+
+        <!-- Gestión de Áreas -->
+        <div class="row mb-4">
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="mb-0"><i class="bi bi-building me-2"></i>Áreas</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="lista-areas" class="mb-3"></div>
+                        <hr>
+                        <h6 class="fw-bold">Nueva Área</h6>
+                        <div class="input-group">
+                            <input type="text" id="nueva-area" class="form-control" placeholder="Nombre del área">
+                            <button class="btn btn-primary" onclick="crearArea()">Agregar</button>
+                        </div>
+                        <div id="area-msg" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Usuarios -->
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-people me-2"></i>Usuarios</h5>
+                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+                            <i class="bi bi-person-plus me-1"></i>Nuevo Usuario
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Usuario</th>
+                                        <th>Rol</th>
+                                        <th>Área</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-usuarios"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Permisos -->
+        <div class="card border-0 shadow-sm mb-4" id="panel-permisos" style="display:none;">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Permisos de: <span id="perms-username"></span></h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-muted mb-3">MÓDULO TALLER</h6>
+                        <div id="perms-taller"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-muted mb-3">MÓDULO CHECKLIST</h6>
+                        <div id="perms-checklist"></div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-primary" onclick="guardarPermisos()">
+                        <i class="bi bi-save me-1"></i>Guardar Permisos
+                    </button>
+                    <button class="btn btn-outline-secondary ms-2" onclick="document.getElementById('panel-permisos').style.display='none'">Cancelar</button>
+                </div>
+                <div id="perms-msg" class="mt-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Usuario -->
+    <div class="modal fade" id="modalNuevoUsuario" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Crear Nuevo Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="nuevo-user-msg"></div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre de Usuario</label>
+                        <input type="text" id="nu-username" class="form-control" placeholder="sin espacios">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Contraseña</label>
+                        <input type="password" id="nu-password" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Rol</label>
+                        <select id="nu-role" class="form-select">
+                            <option value="Recepcion">Recepción</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Gerente">Gerente</option>
+                            <option value="Superusuario">Superusuario</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Área (opcional)</label>
+                        <select id="nu-area" class="form-select">
+                            <option value="">Global (Sin área específica)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success fw-bold" onclick="crearUsuario()">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reset Contraseña -->
+    <div class="modal fade" id="modalResetPass" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><i class="bi bi-key me-2"></i>Resetear Contraseña</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="reset-user-id">
+                    <p>Usuario: <strong id="reset-username"></strong></p>
+                    <label class="form-label fw-semibold">Nueva Contraseña</label>
+                    <input type="password" id="reset-password" class="form-control">
+                    <div id="reset-msg" class="mt-2"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-warning fw-bold" onclick="resetearPassword()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    let areas = [];
+    let usuarios = [];
+    let selectedUserId = null;
+
+    const PERMS_TALLER = ['taller_acceso','taller_registro','taller_editar','taller_autorizar','taller_tecnico'];
+    const PERMS_CHECKLIST = ['checklist_acceso','checklist_crear','checklist_editar','checklist_borrar'];
+    const LABELS = {
+        taller_acceso: 'Acceso al Taller', taller_registro: 'Registrar Entradas',
+        taller_editar: 'Editar Entradas', taller_autorizar: 'Autorizar/Archivar',
+        taller_tecnico: 'Vista Técnico', checklist_acceso: 'Ver Checklists',
+        checklist_crear: 'Crear Checklist', checklist_editar: 'Editar Checklist',
+        checklist_borrar: 'Eliminar Checklist'
+    };
+
+    async function cargarTodo() {
+        const [resAreas, resUsers] = await Promise.all([
+            fetch('/api/admin/areas'), fetch('/api/admin/users')
+        ]);
+        areas = await resAreas.json();
+        usuarios = await resUsers.json();
+        renderAreas();
+        renderUsuarios();
+        // Populate area select in modal
+        const sel = document.getElementById('nu-area');
+        sel.innerHTML = '<option value="">Global (Sin área específica)</option>';
+        areas.forEach(a => sel.innerHTML += `<option value="${a.id}">${a.name}</option>`);
+    }
+
+    function renderAreas() {
+        document.getElementById('lista-areas').innerHTML = areas.map(a => `
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="fw-semibold"><i class="bi bi-geo-alt-fill text-primary me-2"></i>${a.name}</span>
+                <button class="btn btn-outline-danger btn-sm" onclick="eliminarArea(${a.id}, '${a.name}')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `).join('') || '<p class="text-muted">No hay áreas.</p>';
+    }
+
+    function renderUsuarios() {
+        document.getElementById('tbody-usuarios').innerHTML = usuarios.map(u => `
+            <tr>
+                <td class="ps-4 fw-bold">${u.username}</td>
+                <td><span class="badge bg-secondary">${u.role}</span></td>
+                <td>${u.area_name}</td>
+                <td class="text-center">
+                    <button class="btn btn-outline-primary btn-sm me-1" onclick="abrirPermisos(${u.id})" title="Permisos">
+                        <i class="bi bi-shield-lock"></i>
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm me-1" onclick="abrirResetPass(${u.id}, '${u.username}')" title="Reset contraseña">
+                        <i class="bi bi-key"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="eliminarUsuario(${u.id}, '${u.username}')" title="Eliminar">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function crearArea() {
+        const nombre = document.getElementById('nueva-area').value.trim();
+        if (!nombre) return;
+        const res = await fetch('/api/admin/areas', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({name: nombre}) });
+        const data = await res.json();
+        const msg = document.getElementById('area-msg');
+        if (res.ok) {
+            msg.innerHTML = '<span class="text-success small">Área creada.</span>';
+            document.getElementById('nueva-area').value = '';
+            cargarTodo();
+        } else {
+            msg.innerHTML = `<span class="text-danger small">${data.error}</span>`;
+        }
+        setTimeout(() => msg.innerHTML = '', 3000);
+    }
+
+    async function eliminarArea(id, nombre) {
+        if (!confirm(`¿Eliminar el área "${nombre}"?`)) return;
+        const res = await fetch(`/api/admin/areas/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) cargarTodo();
+        else alert(data.error);
+    }
+
+    async function crearUsuario() {
+        const body = {
+            username: document.getElementById('nu-username').value.trim(),
+            password: document.getElementById('nu-password').value,
+            role: document.getElementById('nu-role').value,
+            area_id: document.getElementById('nu-area').value || null
+        };
+        const res = await fetch('/api/admin/users', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        const data = await res.json();
+        const msg = document.getElementById('nuevo-user-msg');
+        if (res.ok) {
+            msg.innerHTML = '<div class="alert alert-success py-1">Usuario creado.</div>';
+            cargarTodo();
+            setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('modalNuevoUsuario')).hide(); msg.innerHTML=''; }, 1500);
+        } else {
+            msg.innerHTML = `<div class="alert alert-danger py-1">${data.error}</div>`;
+        }
+    }
+
+    async function eliminarUsuario(id, username) {
+        if (!confirm(`¿Eliminar al usuario "${username}"?`)) return;
+        const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) cargarTodo();
+        else alert(data.error);
+    }
+
+    function abrirResetPass(id, username) {
+        document.getElementById('reset-user-id').value = id;
+        document.getElementById('reset-username').textContent = username;
+        document.getElementById('reset-password').value = '';
+        document.getElementById('reset-msg').innerHTML = '';
+        new bootstrap.Modal(document.getElementById('modalResetPass')).show();
+    }
+
+    async function resetearPassword() {
+        const id = document.getElementById('reset-user-id').value;
+        const pass = document.getElementById('reset-password').value;
+        const res = await fetch(`/api/admin/users/${id}/reset-password`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify({password: pass}) });
+        const data = await res.json();
+        const msg = document.getElementById('reset-msg');
+        if (res.ok) {
+            msg.innerHTML = '<span class="text-success">Contraseña actualizada.</span>';
+            setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('modalResetPass')).hide(), 1500);
+        } else {
+            msg.innerHTML = `<span class="text-danger">${data.error}</span>`;
+        }
+    }
+
+    function abrirPermisos(id) {
+        selectedUserId = id;
+        const user = usuarios.find(u => u.id === id);
+        if (!user) return;
+        document.getElementById('perms-username').textContent = user.username;
+
+        const renderPerms = (container, perms) => {
+            document.getElementById(container).innerHTML = perms.map(p => `
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input perm-check" type="checkbox" id="perm-${p}" data-perm="${p}" ${user.perms[p] ? 'checked' : ''}>
+                    <label class="form-check-label" for="perm-${p}">${LABELS[p]}</label>
+                </div>
+            `).join('');
+        };
+        renderPerms('perms-taller', PERMS_TALLER);
+        renderPerms('perms-checklist', PERMS_CHECKLIST);
+
+        const panel = document.getElementById('panel-permisos');
+        panel.style.display = 'block';
+        panel.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function guardarPermisos() {
+        const perms = {};
+        document.querySelectorAll('.perm-check').forEach(chk => {
+            perms[chk.dataset.perm] = chk.checked;
+        });
+        const res = await fetch(`/api/admin/users/${selectedUserId}/perms`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(perms) });
+        const data = await res.json();
+        const msg = document.getElementById('perms-msg');
+        if (res.ok) {
+            msg.innerHTML = '<span class="text-success fw-semibold">✔ Permisos guardados.</span>';
+            cargarTodo();
+        } else {
+            msg.innerHTML = `<span class="text-danger">${data.error}</span>`;
+        }
+        setTimeout(() => msg.innerHTML = '', 3000);
+    }
+
+    cargarTodo();
+    </script>
+</body>
+</html>
