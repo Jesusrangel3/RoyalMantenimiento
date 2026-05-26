@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+flask-migrate
+flask-login
+flask-socketio
+requests
+python-dotenv
+pytz
+psycopg2-binary
+gunicorn
