@@ -1,0 +1,100 @@
+/* ============================================
+   Taller CIF - Estilos Globales
+   ============================================ */
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: #f0f2f5;
+}
+
+/* --- Tarjetas de Unidad --- */
+.card-unidad {
+    border-radius: 12px;
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+.card-unidad:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12) !important;
+}
+
+/* Borde lateral según estado */
+.card-en-tiempo    { border-left: 5px solid #198754 !important; }
+.card-cerca-vencer { border-left: 5px solid #ffc107 !important; }
+.card-fuera-tiempo { border-left: 5px solid #dc3545 !important; }
+.card-en-revision  { border-left: 5px solid #0d6efd !important; }
+
+/* --- Badges de estado --- */
+.badge-en-tiempo    { background-color: #d1e7dd; color: #0f5132; }
+.badge-cerca-vencer { background-color: #fff3cd; color: #664d03; }
+.badge-fuera-tiempo { background-color: #f8d7da; color: #842029; }
+.badge-en-revision  { background-color: #cfe2ff; color: #084298; }
+
+/* --- Filtros Rápidos --- */
+.btn-group .btn-check:checked + .btn-outline-secondary { background-color: #6c757d; color: #fff; }
+.btn-group .btn-check:checked + .btn-outline-success   { background-color: #198754; color: #fff; }
+.btn-group .btn-check:checked + .btn-outline-warning   { background-color: #ffc107; color: #000; }
+.btn-group .btn-check:checked + .btn-outline-danger    { background-color: #dc3545; color: #fff; }
+.btn-group .btn-check:checked + .btn-outline-primary   { background-color: #0d6efd; color: #fff; }
+
+/* --- Contador en filtro --- */
+.filtro-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 4px;
+    font-weight: 700;
+}
+
+/* --- Bitácora / Log --- */
+.log-container { max-height: 400px; overflow-y: auto; }
+.nota-item {
+    border-left: 3px solid #0d6efd;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+}
+.nota-item .nota-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* --- Días indicador --- */
+.dias-badge {
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* --- Panel Recepción sticky --- */
+#panel-recepcion .card {
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+/* --- Animación de entrada de tarjetas --- */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.card-unidad { animation: fadeInUp 0.25s ease both; }
+
+/* --- Empty state --- */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: #adb5bd;
+}
+.empty-state i { font-size: 3.5rem; display: block; margin-bottom: 12px; }
+
+/* --- Navbar activa --- */
+.navbar .nav-link.active { font-weight: 600; }
+
+/* --- Scrollbar personalizado --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
