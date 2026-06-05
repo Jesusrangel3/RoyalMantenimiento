@@ -610,7 +610,7 @@ def registrar_entrada():
         nueva_entrada = TallerEntrada(
             numero_economico=data['numero_economico'],
             tipo_vehiculo=data['tipo_vehiculo'],
-            razones=data['motivo_de_entrada'], 
+            razones=data['razones'], 
             otros_motivos=data.get('otros_motivos', '').strip(),
             dias_estimados=int(data['dias_estimados']),
             fecha_entrada=fecha_para_bd,
@@ -621,7 +621,7 @@ def registrar_entrada():
         db.session.commit()
         
         primera_nota = Nota(
-            text=f"Entrada registrada por {current_user.username} con Motivo: {data['motivo_de_entrada']}",
+            text=f"Entrada registrada por {current_user.username} con Motivo: {data['razones']}",
             user_id=current_user.id,
             taller_entrada_id=nueva_entrada.id
         )
@@ -666,7 +666,7 @@ def editar_entrada(id):
             cambios.append(f"Días estimados cambiados de {entrada.dias_estimados} a {nuevos_dias}")
             entrada.dias_estimados = nuevos_dias
         
-        nuevo_motivo = data.get('motivo_de_entrada', entrada.razones)
+        nuevo_motivo = data.get('razones', entrada.razones)
         if nuevo_motivo != entrada.razones:
             cambios.append(f"Motivo de entrada actualizado a: '{nuevo_motivo}'")
             entrada.razones = nuevo_motivo
@@ -972,6 +972,7 @@ def create_data():
         db.session.query(Checklist).delete()
         db.session.query(Nota).delete()
         db.session.query(TallerEntrada).delete()
+        db.session.query(Vehicle).delete()
         db.session.query(User).delete()
         db.session.query(Area).delete()
         db.session.commit()
@@ -1008,7 +1009,48 @@ def create_data():
 
         db.session.add_all([user_r_sal, user_m_sal, user_gerente, user_super])
         db.session.commit()
-        print("Datos iniciales creados con permisos.")
+
+        # Crear vehículos de prueba
+        v1 = Vehicle(samsara_id="mock-1", name="T-101", operation="Salamanca")
+        v2 = Vehicle(samsara_id="mock-2", name="T-102", operation="Salamanca")
+        v3 = Vehicle(samsara_id="mock-3", name="R-201", operation="Salamanca")
+        v4 = Vehicle(samsara_id="mock-4", name="R-202", operation="Laredo")
+        db.session.add_all([v1, v2, v3, v4])
+        db.session.commit()
+
+        # Crear entradas de taller de prueba
+        e1 = TallerEntrada(
+            numero_economico="T-101",
+            tipo_vehiculo="Tractocamion",
+            razones="Falla Mecanica Motor",
+            otros_motivos="Ruido extraño en motor al acelerar",
+            dias_estimados=3,
+            fecha_entrada=datetime.utcnow(),
+            status="pendiente",
+            area_id=area1.id,
+            user_id=user_r_sal.id
+        )
+        e2 = TallerEntrada(
+            numero_economico="R-201",
+            tipo_vehiculo="Remolque",
+            razones="Falla Frenos",
+            otros_motivos="Falta de presión en balatas traseras",
+            dias_estimados=2,
+            fecha_entrada=datetime.utcnow(),
+            status="en_revision",
+            area_id=area1.id,
+            user_id=user_r_sal.id
+        )
+        db.session.add_all([e1, e2])
+        db.session.commit()
+
+        # Crear notas de prueba
+        n1 = Nota(text="Entrada registrada por recepcion_sal con Motivo: Falla Mecanica Motor", user_id=user_r_sal.id, taller_entrada_id=e1.id)
+        n2 = Nota(text="Mantenimiento marcó como 'Completada'. Pendiente de autorización por Recepción.", user_id=user_m_sal.id, taller_entrada_id=e2.id)
+        db.session.add_all([n1, n2])
+        db.session.commit()
+
+        print("Datos iniciales creados con permisos, vehículos y entradas de taller.")
     except Exception as e:
         db.session.rollback()
         print(f"Error al crear datos: {e}")
@@ -1095,4 +1137,4 @@ def sync_vehicles():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=False)
+    socketio.run(app, host='0.0.0.0', port=port, debug=True, allow_unsafe_werkzeug=True)
