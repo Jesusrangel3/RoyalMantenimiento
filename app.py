@@ -725,6 +725,78 @@ def solicitar_revision(id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/entradas/<int:id>/status', methods=['PUT'])
+@login_required
+def update_entrada_status(id):
+    try:
+        data = request.get_json() or {}
+        nuevo_status = data.get('status')
+        if not nuevo_status:
+            return jsonify({'error': 'Status requerido'}), 400
+            
+        entrada = db.session.get(TallerEntrada, id)
+        if not entrada:
+            return jsonify({'error': 'Entrada no encontrada'}), 404
+
+        # Validación de Área
+        if current_user.area_id is not None and entrada.area_id != current_user.area_id and current_user.role != 'Superusuario':
+             return jsonify({'error': 'No autorizado para esta entrada'}), 403
+
+        if nuevo_status == 'en_revision':
+            # Permitir a usuarios con perm_taller_tecnico, perm_taller_autorizar o Superusuario
+            if not current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+                return jsonify({'error': 'No autorizado'}), 403
+
+            entrada.status = 'en_revision'
+            
+            nota_cierre = Nota(
+                text=f"{current_user.username} envió la unidad a revisión para su autorización.",
+                user_id=current_user.id,
+                taller_entrada_id=id
+            )
+            db.session.add(nota_cierre)
+            db.session.commit()
+            
+            socketio.emit('cambio_detectado', {'message': 'Entrada enviada a revisión'})
+            return jsonify(entrada.to_dict())
+            
+        elif nuevo_status == 'archivado':
+            # Permitir a usuarios con perm_taller_autorizar o Superusuario
+            if not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+                return jsonify({'error': 'No autorizado'}), 403
+
+            if entrada.status != 'en_revision':
+                return jsonify({'error': 'Esta entrada no está pendiente de autorización'}), 400
+
+            entrada.status = 'archivado'
+            
+            nota_final = Nota(
+                text=f"{current_user.role} ({current_user.username}) autorizó la salida de la unidad.",
+                user_id=current_user.id,
+                taller_entrada_id=id
+            )
+            db.session.add(nota_final)
+            db.session.commit()
+            
+            socketio.emit('cambio_detectado', {'message': 'Entrada autorizada y archivada'})
+            return jsonify(entrada.to_dict())
+            
+        elif nuevo_status == 'pendiente':
+            if not current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+                return jsonify({'error': 'No autorizado'}), 403
+            
+            entrada.status = 'pendiente'
+            db.session.commit()
+            socketio.emit('cambio_detectado', {'message': 'Entrada reabierta'})
+            return jsonify(entrada.to_dict())
+            
+        else:
+            return jsonify({'error': f'Status {nuevo_status} no válido'}), 400
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/entradas/<int:id>/autorizar', methods=['PUT'])
 @login_required
 def autorizar_salida(id):

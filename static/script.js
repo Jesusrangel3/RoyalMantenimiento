@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ================================================
     window.archivarEntrada = async function(id) {
         if (!confirm('¿Archivar esta unidad? Se moverá al historial.')) return;
-        const res = await fetch(`/api/entradas/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/entradas/${id}/autorizar`, { method: 'PUT' });
         if (res.ok) cargarEntradas();
         else { const e = await res.json(); alert(e.error || 'Error al archivar.'); }
     };
