@@ -1,0 +1,493 @@
+/* ============================================
+   Taller CIF — Sistema de Temas (Light / Dark)
+   ARCHIVO NUEVO: static/theme.css
+   No reemplaza style.css, lo complementa.
+   ============================================ */
+
+/* --- Fuente Premium: Inter --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ============================================
+   CSS TOKENS — MODO CLARO (default)
+   ============================================ */
+:root {
+    --bg-main:           #f1f5f9;
+    --bg-surface:        #ffffff;
+    --bg-surface-2:      #f8fafc;
+    --bg-navbar:         linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+    --border-color:      #e2e8f0;
+    --text-primary:      #0f172a;
+    --text-secondary:    #64748b;
+    --text-muted-var:    #94a3b8;
+    --accent:            #3b82f6;
+    --accent-hover:      #2563eb;
+    --shadow-card:       0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(59,130,246,0.06);
+    --shadow-hover:      0 8px 30px rgba(59,130,246,0.18);
+    --input-bg:          #ffffff;
+    --input-border:      #d1d5db;
+    --input-focus:       #3b82f6;
+    --modal-bg:          #ffffff;
+    --modal-border:      #e2e8f0;
+    --badge-green-bg:    #dcfce7; --badge-green-text:  #15803d;
+    --badge-yellow-bg:   #fef9c3; --badge-yellow-text: #854d0e;
+    --badge-red-bg:      #fee2e2; --badge-red-text:    #b91c1c;
+    --badge-blue-bg:     #dbeafe; --badge-blue-text:   #1d4ed8;
+    --card-border-green: #22c55e;
+    --card-border-yellow:#eab308;
+    --card-border-red:   #ef4444;
+    --card-border-blue:  #3b82f6;
+    --toggle-bg:         rgba(255,255,255,0.18);
+    --scrollbar-thumb:   #cbd5e1;
+    --nota-bg:           #f8fafc;
+    --table-header-bg:   #f1f5f9;
+    --login-gradient:    linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+}
+
+/* ============================================
+   CSS TOKENS — MODO OSCURO
+   ============================================ */
+html.dark {
+    --bg-main:           #0d1117;
+    --bg-surface:        #161b22;
+    --bg-surface-2:      #1c2128;
+    --bg-navbar:         linear-gradient(135deg, #080d18 0%, #0d1626 60%, #111827 100%);
+    --border-color:      #30363d;
+    --text-primary:      #e6edf3;
+    --text-secondary:    #8b949e;
+    --text-muted-var:    #6e7681;
+    --accent:            #58a6ff;
+    --accent-hover:      #79b8ff;
+    --shadow-card:       0 1px 3px rgba(0,0,0,0.4), 0 4px 20px rgba(0,0,0,0.25);
+    --shadow-hover:      0 8px 30px rgba(88,166,255,0.15);
+    --input-bg:          #21262d;
+    --input-border:      #30363d;
+    --input-focus:       #58a6ff;
+    --modal-bg:          #161b22;
+    --modal-border:      #30363d;
+    --badge-green-bg:    #0f2d1f; --badge-green-text:  #4ade80;
+    --badge-yellow-bg:   #2a1f00; --badge-yellow-text: #fbbf24;
+    --badge-red-bg:      #2d1515; --badge-red-text:    #f87171;
+    --badge-blue-bg:     #101e33; --badge-blue-text:   #60a5fa;
+    --card-border-green: #22c55e;
+    --card-border-yellow:#eab308;
+    --card-border-red:   #ef4444;
+    --card-border-blue:  #3b82f6;
+    --toggle-bg:         rgba(255,255,255,0.07);
+    --scrollbar-thumb:   #30363d;
+    --nota-bg:           #1c2128;
+    --table-header-bg:   #1c2128;
+    --login-gradient:    linear-gradient(135deg, #080d18 0%, #0d1626 100%);
+}
+
+/* ============================================
+   TIPOGRAFÍA GLOBAL — Inter
+   ============================================ */
+body,
+.navbar,
+.card,
+.btn,
+.form-control,
+.form-select,
+.modal,
+h1, h2, h3, h4, h5, h6,
+p, span, label, small, td, th, li, a {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif !important;
+}
+
+/* ============================================
+   TRANSICIÓN GLOBAL SUAVE (sin romper animaciones)
+   ============================================ */
+body,
+.card,
+.navbar,
+.modal-content,
+.form-control,
+.form-select,
+.input-group-text,
+.nota-item,
+.modal-footer,
+.card-header,
+.card-footer {
+    transition: background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.2s ease !important;
+}
+/* Excluir para no interferir con fadeInUp de tarjetas */
+.card-unidad {
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease,
+                background-color 0.25s ease !important;
+}
+
+/* ============================================
+   BODY Y FONDO
+   ============================================ */
+body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ============================================
+   NAVBAR PREMIUM
+   ============================================ */
+.navbar {
+    background: var(--bg-navbar) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.2) !important;
+    padding: 0.55rem 1.25rem !important;
+}
+.navbar-brand {
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    letter-spacing: -0.2px !important;
+}
+.navbar .nav-link {
+    font-size: 0.865rem !important;
+    font-weight: 500 !important;
+    padding: 0.38rem 0.7rem !important;
+    border-radius: 7px !important;
+    opacity: 0.88;
+    transition: background 0.2s ease, opacity 0.2s ease !important;
+}
+.navbar .nav-link:hover {
+    background: rgba(255,255,255,0.13) !important;
+    opacity: 1 !important;
+}
+.navbar .nav-link.active {
+    background: rgba(255,255,255,0.16) !important;
+    opacity: 1 !important;
+    font-weight: 600 !important;
+}
+
+/* ============================================
+   BOTÓN DE TOGGLE DE TEMA
+   ============================================ */
+#theme-toggle-btn {
+    background: var(--toggle-bg) !important;
+    border: 1px solid rgba(255,255,255,0.22) !important;
+    color: #fff !important;
+    border-radius: 8px !important;
+    padding: 0.32rem 0.58rem !important;
+    font-size: 1rem !important;
+    cursor: pointer !important;
+    line-height: 1 !important;
+    transition: background 0.2s ease, transform 0.15s ease !important;
+    margin-right: 0.5rem;
+}
+#theme-toggle-btn:hover {
+    background: rgba(255,255,255,0.26) !important;
+    transform: scale(1.1) rotate(15deg);
+}
+
+/* ============================================
+   CARDS / TARJETAS
+   ============================================ */
+.card {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border-color) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+.card-unidad:hover {
+    box-shadow: var(--shadow-hover) !important;
+}
+.card-header {
+    background-color: var(--bg-surface) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+.card-footer {
+    background-color: var(--bg-surface) !important;
+    border-top-color: var(--border-color) !important;
+}
+
+/* Badges de estado con variables */
+.badge-en-tiempo    {
+    background-color: var(--badge-green-bg)  !important;
+    color: var(--badge-green-text)  !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+.badge-cerca-vencer {
+    background-color: var(--badge-yellow-bg) !important;
+    color: var(--badge-yellow-text) !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+.badge-fuera-tiempo {
+    background-color: var(--badge-red-bg)    !important;
+    color: var(--badge-red-text)    !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+.badge-en-revision  {
+    background-color: var(--badge-blue-bg)   !important;
+    color: var(--badge-blue-text)   !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+
+/* Bordes laterales de tarjetas con variables */
+.card-en-tiempo    { border-left: 4px solid var(--card-border-green)  !important; }
+.card-cerca-vencer { border-left: 4px solid var(--card-border-yellow) !important; }
+.card-fuera-tiempo { border-left: 4px solid var(--card-border-red)    !important; }
+.card-en-revision  { border-left: 4px solid var(--card-border-blue)   !important; }
+
+/* ============================================
+   FORMULARIOS E INPUTS
+   ============================================ */
+.form-control,
+.form-select,
+textarea.form-control {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+}
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-focus) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18) !important;
+}
+.form-control::placeholder { color: var(--text-muted-var) !important; }
+.form-label {
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    font-size: 0.82rem !important;
+}
+.input-group-text {
+    background-color: var(--bg-surface-2) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-secondary) !important;
+    border-radius: 8px 0 0 8px !important;
+}
+
+/* TomSelect (buscador de económicos) */
+.ts-wrapper .ts-control {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+}
+.ts-wrapper.focus .ts-control {
+    border-color: var(--input-focus) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18) !important;
+}
+.ts-wrapper .ts-dropdown {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+    box-shadow: var(--shadow-card) !important;
+}
+.ts-wrapper .ts-dropdown .option { color: var(--text-primary) !important; }
+.ts-wrapper .ts-dropdown .option:hover,
+.ts-wrapper .ts-dropdown .option.active {
+    background-color: var(--bg-surface-2) !important;
+    color: var(--accent) !important;
+}
+.ts-wrapper .ts-control .item { color: var(--text-primary) !important; }
+
+/* Checklist: sub-panels de extintor/corta/aire */
+.p-3.border.rounded.bg-white {
+    background-color: var(--bg-surface-2) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* ============================================
+   TEXTOS Y UTILIDADES
+   ============================================ */
+.text-muted       { color: var(--text-secondary) !important; }
+small.text-muted  { color: var(--text-muted-var) !important; }
+h1,h2,h3,h4,h5,h6 { color: var(--text-primary) !important; }
+
+/* ============================================
+   BOTONES PREMIUM
+   ============================================ */
+.btn {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    transition: all 0.18s ease !important;
+}
+.btn-primary {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    font-weight: 600 !important;
+}
+.btn-primary:hover {
+    background-color: var(--accent-hover) !important;
+    border-color: var(--accent-hover) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.35) !important;
+}
+
+/* Outline buttons en dark mode */
+html.dark .btn-outline-secondary {
+    color: var(--text-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+html.dark .btn-outline-secondary:hover {
+    background-color: var(--bg-surface-2) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+html.dark .btn-outline-success { color: #4ade80 !important; border-color: #4ade80 !important; }
+html.dark .btn-outline-success:hover { background-color: #0f2d1f !important; }
+html.dark .btn-outline-warning { color: #fbbf24 !important; border-color: #fbbf24 !important; }
+html.dark .btn-outline-warning:hover { background-color: #2a1f00 !important; }
+html.dark .btn-outline-danger  { color: #f87171 !important; border-color: #f87171 !important; }
+html.dark .btn-outline-danger:hover  { background-color: #2d1515 !important; }
+html.dark .btn-outline-primary { color: #60a5fa !important; border-color: #60a5fa !important; }
+html.dark .btn-outline-primary:hover { background-color: #101e33 !important; }
+html.dark .btn-outline-light   { border-color: rgba(255,255,255,0.3) !important; color: #fff !important; }
+html.dark .btn-secondary       { background-color: #21262d !important; border-color: #30363d !important; }
+
+/* Filtros activos en dark mode */
+html.dark .btn-check:checked + .btn-outline-secondary {
+    background-color: #374151 !important; color: #e5e7eb !important; border-color: #374151 !important;
+}
+html.dark .btn-check:checked + .btn-outline-success {
+    background-color: #14532d !important; color: #4ade80 !important; border-color: #14532d !important;
+}
+html.dark .btn-check:checked + .btn-outline-warning {
+    background-color: #78350f !important; color: #fbbf24 !important; border-color: #78350f !important;
+}
+html.dark .btn-check:checked + .btn-outline-danger {
+    background-color: #7f1d1d !important; color: #f87171 !important; border-color: #7f1d1d !important;
+}
+html.dark .btn-check:checked + .btn-outline-primary {
+    background-color: #1e3a5f !important; color: #60a5fa !important; border-color: #1e3a5f !important;
+}
+
+/* Filtros — mejor tamaño de fuente */
+.btn-group .btn {
+    font-weight: 600 !important;
+    font-size: 0.83rem !important;
+    letter-spacing: 0.15px !important;
+}
+
+/* ============================================
+   MODALES
+   ============================================ */
+.modal-content {
+    background-color: var(--modal-bg) !important;
+    border-color: var(--modal-border) !important;
+    color: var(--text-primary) !important;
+    border-radius: 12px !important;
+}
+.modal-body  { color: var(--text-primary) !important; }
+.modal-footer {
+    background-color: var(--modal-bg) !important;
+    border-top-color: var(--modal-border) !important;
+}
+/* Adaptar modal headers en dark mode sin perder el color */
+html.dark .modal-header.bg-primary  { background-color: #1a3260 !important; }
+html.dark .modal-header.bg-secondary { background-color: #1c2128 !important; border-bottom: 1px solid #30363d !important; }
+html.dark .modal-header.bg-warning  { background-color: #6d3107 !important; }
+html.dark .modal-header .btn-close  { filter: brightness(2); }
+
+/* ============================================
+   TABLAS (reportes / checklist / stats)
+   ============================================ */
+html.dark .table {
+    color: var(--text-primary) !important;
+    --bs-table-color: var(--text-primary);
+    --bs-table-bg: var(--bg-surface);
+    --bs-table-striped-bg: var(--bg-surface-2);
+    --bs-table-hover-bg: var(--bg-surface-2);
+    --bs-table-border-color: var(--border-color);
+}
+html.dark .table-light,
+html.dark thead.table-light {
+    --bs-table-bg: var(--table-header-bg) !important;
+    background-color: var(--table-header-bg) !important;
+    color: var(--text-primary) !important;
+}
+html.dark thead.table-dark {
+    background-color: #0d1117 !important;
+    color: #e6edf3 !important;
+}
+html.dark .table > :not(caption) > * > * {
+    background-color: var(--bg-surface) !important;
+    border-bottom-color: var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+html.dark .table-hover > tbody > tr:hover > * {
+    background-color: var(--bg-surface-2) !important;
+}
+
+/* ============================================
+   NOTAS / BITÁCORA
+   ============================================ */
+.nota-item {
+    background: var(--nota-bg) !important;
+    border-left-color: var(--accent) !important;
+}
+.nota-item .nota-meta { color: var(--text-muted-var) !important; }
+
+/* ============================================
+   SPINNER
+   ============================================ */
+html.dark .spinner-border.text-primary   { color: var(--accent) !important; }
+html.dark .spinner-border.text-secondary { color: var(--text-secondary) !important; }
+
+/* ============================================
+   MÉTRICAS INLINE (index.html)
+   ============================================ */
+html.dark .metric-verde    { background-color: #0f2d1f !important; color: #4ade80 !important; }
+html.dark .metric-amarillo { background-color: #2a1f00 !important; color: #fbbf24 !important; }
+html.dark .metric-rojo     { background-color: #2d1515 !important; color: #f87171 !important; }
+html.dark .metric-azul     { background-color: #101e33 !important; color: #60a5fa !important; }
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+html.dark .alert-success { background-color: #0f2d1f !important; color: #4ade80 !important; border-color: #22c55e !important; }
+html.dark .alert-danger  { background-color: #2d1515 !important; color: #f87171 !important; border-color: #ef4444 !important; }
+html.dark .alert-warning { background-color: #2a1f00 !important; color: #fbbf24 !important; border-color: #eab308 !important; }
+
+/* ============================================
+   PÁGINA DE LOGIN
+   ============================================ */
+html.dark body.login-page {
+    background: var(--login-gradient) !important;
+}
+
+/* ============================================
+   SEARCH BAR
+   ============================================ */
+#search-bar,
+#search-reportes {
+    background-color: var(--input-bg) !important;
+    border-color: var(--input-border) !important;
+    color: var(--text-primary) !important;
+}
+#search-bar:focus,
+#search-reportes:focus {
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.18) !important;
+    border-color: var(--input-focus) !important;
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ============================================
+   FORM-CHECK (switches/checkboxes) en dark
+   ============================================ */
+html.dark .form-check-label { color: var(--text-primary) !important; }
+html.dark .form-check-input {
+    background-color: var(--input-bg) !important;
+    border-color: var(--border-color) !important;
+}
+html.dark .form-check-input:checked {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
