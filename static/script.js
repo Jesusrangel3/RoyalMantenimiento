@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Estado ---
     let filtroActual = 'todas';
     let searchTimer  = null;
+    let todasLasEntradas = [];
 
     // ================================================
     //  INICIO: Cargar vehículos y entradas
@@ -87,13 +88,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (loadingIndicator) loadingIndicator.style.display = 'none';
 
+            // Guardar listado general para cálculo de KPIs
+            if (filtroActual === 'todas' && !search) {
+                todasLasEntradas = data.entradas || [];
+            }
+
             actualizarContadores(data.counts);
+            actualizarKPIs(data.counts, todasLasEntradas);
             renderizarTarjetas(data.entradas);
 
         } catch (e) {
             if (loadingIndicator) loadingIndicator.style.display = 'none';
             if (dashContainer) dashContainer.innerHTML = `
-                <div class="empty-state-error" style="grid-column: 1 / -1;">
+                <div class="col-12 empty-state-error">
                     <div class="alert alert-danger mb-0">
                         <i class="bi bi-exclamation-circle me-2"></i>Error al cargar los datos: ${e.message}
                     </div>
@@ -116,14 +123,59 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(map).forEach(([id, val]) => {
             const el = document.getElementById(id);
             if (!el) return;
-            el.querySelectorAll('.filtro-badge').forEach(b => b.remove());
+            el.querySelectorAll('.filtro-badge, .filtro-badge-custom').forEach(b => b.remove());
             if (val > 0) {
                 const badge = document.createElement('span');
-                badge.className = 'filtro-badge bg-white text-dark';
+                badge.className = 'filtro-badge-custom';
                 badge.textContent = val;
                 el.appendChild(badge);
             }
         });
+    }
+
+    // ================================================
+    //  ACTUALIZAR TARJETAS KPI SUPERIORES
+    // ================================================
+    function actualizarKPIs(counts, todas) {
+        if (!counts) return;
+
+        // 1. Unidades en taller
+        const totalUnidadesEl = document.getElementById('kpi-total-unidades');
+        if (totalUnidadesEl) totalUnidadesEl.textContent = counts.todas;
+
+        // 2. Días promedio en taller
+        const promedioDiasEl = document.getElementById('kpi-promedio-dias');
+        if (promedioDiasEl) {
+            let totalDias = 0;
+            let countConDias = 0;
+            todas.forEach(e => {
+                if (e.status !== 'archivado') {
+                    totalDias += e.dias_en_taller;
+                    countConDias++;
+                }
+            });
+            const prom = countConDias > 0 ? (totalDias / countConDias).toFixed(1) : '0';
+            promedioDiasEl.textContent = prom;
+        }
+
+        // 3. Fuera de tiempo
+        const fueraTiempoEl = document.getElementById('kpi-fuera-tiempo');
+        if (fueraTiempoEl) fueraTiempoEl.textContent = counts.fuera_de_tiempo;
+
+        const fueraTiempoPctEl = document.getElementById('kpi-fuera-tiempo-pct');
+        if (fueraTiempoPctEl) {
+            const pct = counts.todas > 0 ? Math.round((counts.fuera_de_tiempo / counts.todas) * 100) : 0;
+            fueraTiempoPctEl.textContent = `${pct}% excedidas`;
+        }
+
+        // 4. Eficiencia
+        const eficienciaEl = document.getElementById('kpi-eficiencia');
+        if (eficienciaEl) {
+            const totalParaEficiencia = counts.todas - counts.en_revision;
+            const enTiempoTotal = (counts.en_tiempo || 0) + (counts.cerca_de_vencer || 0);
+            const ef = totalParaEficiencia > 0 ? Math.round((enTiempoTotal / totalParaEficiencia) * 100) : 100;
+            eficienciaEl.textContent = `${ef}%`;
+        }
     }
 
     // ================================================
@@ -134,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!entradas || entradas.length === 0) {
             dashContainer.innerHTML = `
-                <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="col-12 empty-state">
                     <div class="text-center py-5">
                         <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
                         <h5 class="text-muted mt-3">No hay unidades en este filtro</h5>
@@ -159,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const canTecnico  = USER_PERMS.taller_tecnico || USER_ROLE === 'Superusuario';
 
             return `
-            <div class="dashboard-card-wrapper" id="card-wrapper-${e.id}" style="animation-delay:${i * 0.04}s;">
+            <div class="col-sm-6 col-xl-4 mb-3 dashboard-card-wrapper" id="card-wrapper-${e.id}" style="animation-delay:${i * 0.04}s;">
                 <div class="card card-unidad shadow-sm h-100 ${claseCard}">
                     <div class="card-body pb-2">
                         <!-- Cabecera -->

@@ -19,53 +19,6 @@
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom-header mb-4 shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-            
-                    <img src="{{ url_for('static', filename='img/logosinfondo.png') }}" alt="Taller CIF" height="36">
-                </span>
-               
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/">Dashboard Taller</a>
-                    </li>
-                    {% if current_user.perm_checklist_acceso or current_user.role == 'Superusuario' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/checklist">Checklist Rapido</a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.role in ['Gerente', 'Superusuario'] %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/stats">Estadísticas Taller</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/reportes">Historial Taller</a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.role == 'Superusuario' %}
-                    <li class="nav-item">
-                        <a class="nav-link text-warning" href="/admin"><i class="bi bi-gear-fill"></i> Panel Admin</a>
-                    </li>
-                    {% endif %}
-                </ul>
-                <div class="d-flex align-items-center text-white gap-2">
-                    <button id="theme-toggle-btn" type="button" onclick="toggleTheme()">
-                        <i class="bi bi-moon-fill"></i>
-                    </button>
-                    <span class="me-1"><i class="bi bi-person-circle"></i> {{ current_user.username }} ({{ current_user.area.name if current_user.area else 'Global' }})</span>
-                    <a href="/logout" class="btn btn-outline-light btn-sm">Salir</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
     <script>
         // @ts-nocheck
         const USER_ROLE = "{{ current_user.role }}";
@@ -76,110 +29,290 @@
         };
     </script>
 
-    <div class="dashboard-wrapper">
-        {% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}
-        <aside class="sidebar-dashboard">
-            <div class="sidebar-brand">
-                <h6 class="mb-0">OPERACIONES</h6>
-            </div>
-
-            <div id="panel-recepcion">
-                <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
-                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
-                        <h5 class="fw-bold"><i class="bi bi-plus-square text-primary"></i> Ingresar Unidad</h5>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Izquierdo -->
+        <div class="sidebar-custom shadow" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="logo-box">
+                        <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="32">
                     </div>
-                    <div class="card-body">
-                        <form id="form-registro">
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Número Económico</label>
-                                <select id="eco-select" required placeholder="Buscar unidad..."></select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Tipo de Vehículo</label>
-                                <select id="tipo" class="form-select" required>
-                                    <option value="Tractocamion">Tractocamión</option>
-                                    <option value="Remolque">Remolque</option>
-                                    <option value="Dolly">Dolly</option>
-                                    <option value="Utilitario">Utilitario</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Motivo Principal</label>
-                                <select id="motivo-entrada-select" class="form-select" required>
-                                    <option value="" disabled selected>Seleccione un motivo...</option>
-                                    <option value="Mantenimiento Preventivo">Mantenimiento Preventivo (Servicio)</option>
-                                    <option value="Falla Mecanica Motor">Falla Mecánica (Motor)</option>
-                                    <option value="Falla Electrica">Falla Eléctrica</option>
-                                    <option value="Falla Frenos">Sistema de Frenos</option>
-                                    <option value="Falla Suspension">Suspensión</option>
-                                    <option value="Llantas y Llantas">Llantas (Pochaduras/Cambios)</option>
-                                    <option value="Falla Transmision">Transmisión / Clutch</option>
-                                    <option value="Falla Aire Acondicionado">Aire Acondicionado</option>
-                                    <option value="Falla Sistema Combustible">Sistema de Combustible</option>
-                                    <option value="Soldadura y Carroceria">Soldadura / Carrocería</option>
-                                    <option value="Colision Siniestro">Colisión / Siniestro</option>
-                                    <option value="Rescate Carretero">Rescate en Carretera</option>
-                                    <option value="Fuga de Aire">Fugas de Aire</option>
-                                    <option value="Otro Motivo">Otro Motivo</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Detalles / Otros Motivos</label>
-                                <textarea id="otros-motivos" class="form-control" rows="2" placeholder="Especificar si es 'Otro Motivo' o agregar detalles..."></textarea>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Días Estimados (Opcional)</label>
-                                <input type="number" id="dias-estimados" class="form-control" min="1" value="1">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label text-muted small fw-bold">Fecha de Ingreso (Atrasada)</label>
-                                <input type="date" id="fecha-entrada-manual" class="form-control">
-                                <small class="text-muted d-block mt-1">Dejar vacío para usar la fecha actual.</small>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 fw-bold">Registrar Entrada</button>
-                        </form>
+                    <div>
+                        <div class="brand-text">Taller CIF</div>
+                        <div class="sub-brand-text">CENTRO DE OPERACIONES</div>
                     </div>
                 </div>
             </div>
-        </aside>
-        {% endif %}
-
-        <main class="main-content-dashboard">
-            <div class="filters-header mb-4">
-                <div class="filters-left">
-                    <div class="btn-group shadow-sm" role="group">
-                        <input type="radio" class="btn-check" name="filtro-estado" id="f-todas" value="todas" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary filter-pill" for="f-todas" id="label-filtro-todas"><i class="bi bi-kanban-fill me-1"></i>Todas</label>
-
-                        <input type="radio" class="btn-check" name="filtro-estado" id="f-tiempo" value="en_tiempo" autocomplete="off">
-                        <label class="btn btn-outline-success filter-pill" for="f-tiempo" id="label-filtro-en-tiempo"><i class="bi bi-check-circle me-1"></i>En Tiempo</label>
-
-                        <input type="radio" class="btn-check" name="filtro-estado" id="f-cerca" value="cerca_de_vencer" autocomplete="off">
-                        <label class="btn btn-outline-warning filter-pill" for="f-cerca" id="label-filtro-cerca-vencer"><i class="bi bi-clock-history me-1"></i>Cerca de Vencer</label>
-
-                        <input type="radio" class="btn-check" name="filtro-estado" id="f-fuera" value="fuera_de_tiempo" autocomplete="off">
-                        <label class="btn btn-outline-danger filter-pill" for="f-fuera" id="label-filtro-fuera-tiempo"><i class="bi bi-exclamation-triangle me-1"></i>Fuera de Tiempo</label>
-
-                        <input type="radio" class="btn-check" name="filtro-estado" id="f-revision" value="en_revision" autocomplete="off">
-                        <label class="btn btn-outline-primary filter-pill" for="f-revision" id="label-filtro-en-revision"><i class="bi bi-person-check me-1"></i>Por Autorizar</label>
+            
+            <div class="list-group list-group-flush flex-grow-1 px-3 mt-4 gap-1">
+                <a href="/" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-grid-1x2 me-2"></i> Dashboard Taller
+                </a>
+                {% if current_user.perm_checklist_acceso or current_user.role == 'Superusuario' %}
+                <a href="/checklist" class="list-group-item list-group-item-action">
+                    <i class="bi bi-clipboard-check me-2"></i> Checklist Rapido
+                </a>
+                {% endif %}
+                {% if current_user.role in ['Gerente', 'Superusuario'] %}
+                <a href="/stats" class="list-group-item list-group-item-action">
+                    <i class="bi bi-bar-chart-line me-2"></i> Estadísticas Taller
+                </a>
+                <a href="/reportes" class="list-group-item list-group-item-action">
+                    <i class="bi bi-journal-text me-2"></i> Historial Taller
+                </a>
+                {% endif %}
+                {% if current_user.role == 'Superusuario' %}
+                <a href="/admin" class="list-group-item list-group-item-action text-warning-custom">
+                    <i class="bi bi-gear me-2"></i> Panel Admin
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer p-3">
+                <div class="monthly-efficiency-card mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small text-muted-custom">Eficiencia mensual</span>
+                        <span class="small fw-bold text-success-custom">87.4%</span>
+                    </div>
+                    <div class="progress progress-sidebar animate-pulse" style="height:4px;">
+                        <div class="progress-bar bg-success-custom" style="width: 87.4%"></div>
                     </div>
                 </div>
-                <div class="filters-right">
-                    <div class="input-group shadow-sm rounded-4 overflow-hidden">
-                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                        <input type="text" id="search-bar" class="form-control border-0" placeholder="Buscar económico o motivo...">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="user-avatar-info d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle">
+                            {{ current_user.username[0].upper() if current_user.username else 'U' }}
+                        </div>
+                        <div class="user-detail-text">
+                            <div class="user-name-str">{{ current_user.username }}</div>
+                            <div class="user-role-str text-muted-custom">{{ current_user.role }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div id="loading-indicator" class="text-center py-5" style="display:none;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
+        <!-- Contenedor Principal (Main Area) -->
+        <div id="page-content-wrapper" class="flex-grow-1">
+            <!-- Header superior -->
+            <nav class="navbar navbar-expand navbar-light bg-transparent py-3 px-4 topbar-custom justify-content-between">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link d-lg-none me-3 p-0" id="menu-toggle">
+                        <i class="bi bi-list fs-3 text-primary-custom"></i>
+                    </button>
+                    <!-- Breadcrumbs -->
+                    <nav aria-label="breadcrumb" class="d-none d-sm-block">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="#" class="text-muted-custom text-decoration-none">Operaciones</a></li>
+                            <li class="breadcrumb-item"><a href="#" class="text-muted-custom text-decoration-none">Mantenimiento</a></li>
+                            <li class="breadcrumb-item active text-primary-custom" aria-current="page">Dashboard Taller</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <div class="vertical-divider"></div>
+                    <div class="d-flex align-items-center gap-2 text-primary-custom text-sm">
+                        <span class="user-badge-text font-monospace d-none d-md-inline-block">{{ current_user.username }}</span>
+                        <a href="/logout" class="btn btn-outline-light-custom btn-sm">Salir <i class="bi bi-box-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-2">
+                <!-- Fila de Título de Página -->
+                <div class="row mb-4">
+                    <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <span class="badge badge-pulse mb-2"><span class="pulse-dot"></span> Tiempo Real &bull; Salamanca</span>
+                            <h2 class="fw-bold mb-1 text-primary-custom text-title-head">Dashboard Taller</h2>
+                            <p class="text-muted-custom mb-0">Supervisa el estado de la flota, prioriza órdenes y autoriza salidas con visibilidad total de cada unidad en mantenimiento.</p>
+                        </div>
+                        <div class="update-indicator text-muted-custom small">
+                            <i class="bi bi-calendar-event me-1"></i> <span id="current-date-str"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila de Tarjetas KPI -->
+                <div class="row mb-4">
+                    <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+                        <div class="card kpi-card shadow-sm h-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div>
+                                    <div class="kpi-title text-muted-custom small">UNIDADES EN TALLER</div>
+                                    <h3 class="kpi-value fw-bold mb-0 text-primary-custom" id="kpi-total-unidades">0</h3>
+                                    <div class="kpi-subtext small text-muted-custom mt-1">+0 vs. semana</div>
+                                </div>
+                                <div class="kpi-icon-container bg-primary-subtle text-primary-custom">
+                                    <i class="bi bi-truck"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3 mb-3 mb-lg-0">
+                        <div class="card kpi-card shadow-sm h-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div>
+                                    <div class="kpi-title text-muted-custom small">DÍAS PROMEDIO</div>
+                                    <h3 class="kpi-value fw-bold mb-0 text-primary-custom" id="kpi-promedio-dias">0</h3>
+                                    <div class="kpi-subtext small text-muted-custom mt-1">Días de estadía</div>
+                                </div>
+                                <div class="kpi-icon-container bg-info-subtle text-info-custom">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card kpi-card shadow-sm h-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div>
+                                    <div class="kpi-title text-muted-custom small">FUERA DE TIEMPO</div>
+                                    <h3 class="kpi-value fw-bold mb-0 text-danger-custom" id="kpi-fuera-tiempo">0</h3>
+                                    <div class="kpi-subtext small text-muted-custom mt-1" id="kpi-fuera-tiempo-pct">0% excedidas</div>
+                                </div>
+                                <div class="kpi-icon-container bg-danger-subtle text-danger-custom">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="card kpi-card shadow-sm h-100">
+                            <div class="card-body d-flex align-items-center justify-content-between p-3">
+                                <div>
+                                    <div class="kpi-title text-muted-custom small">EFICIENCIA OT</div>
+                                    <h3 class="kpi-value fw-bold mb-0 text-success-custom" id="kpi-eficiencia">0%</h3>
+                                    <div class="kpi-subtext small text-muted-custom mt-1">Órdenes en tiempo</div>
+                                </div>
+                                <div class="kpi-icon-container bg-success-subtle text-success-custom">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros y Búsqueda -->
+                <div class="row mb-4 align-items-center gap-3 gap-md-0">
+                    <div class="col-md-8">
+                        <div class="btn-group-custom shadow-sm" role="group">
+                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-todas" value="todas" autocomplete="off" checked>
+                            <label class="filter-pill-custom" for="f-todas" id="label-filtro-todas">
+                                <i class="bi bi-grid-fill me-1"></i>Todas
+                            </label>
+
+                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-tiempo" value="en_tiempo" autocomplete="off">
+                            <label class="filter-pill-custom" for="f-tiempo" id="label-filtro-en-tiempo">
+                                <i class="bi bi-check-circle-fill me-1"></i>En Tiempo
+                            </label>
+
+                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-cerca" value="cerca_de_vencer" autocomplete="off">
+                            <label class="filter-pill-custom" for="f-cerca" id="label-filtro-cerca-vencer">
+                                <i class="bi bi-clock-fill me-1"></i>Cerca de Vencer
+                            </label>
+
+                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-fuera" value="fuera_de_tiempo" autocomplete="off">
+                            <label class="filter-pill-custom" for="f-fuera" id="label-filtro-fuera-tiempo">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Fuera de Tiempo
+                            </label>
+
+                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-revision" value="en_revision" autocomplete="off">
+                            <label class="filter-pill-custom" for="f-revision" id="label-filtro-en-revision">
+                                <i class="bi bi-person-check-fill me-1"></i>Por Autorizar
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="search-group-custom shadow-sm">
+                            <span class="search-icon-custom"><i class="bi bi-search"></i></span>
+                            <input type="text" id="search-bar" class="search-input-custom" placeholder="Buscar económico o motivo...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Formulario Recepción -->
+                    {% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}
+                    <div class="col-lg-3 mb-4" id="panel-recepcion">
+                        <div class="card form-recepcion-card shadow-sm sticky-top" style="top: 20px;">
+                            <div class="card-header border-bottom-0 pt-4 pb-0 d-flex align-items-center gap-2">
+                                <div class="form-header-icon"><i class="bi bi-plus-lg"></i></div>
+                                <h5 class="fw-bold mb-0 text-primary-custom">Ingresar Unidad</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="form-registro">
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted small fw-bold">Número Económico</label>
+                                        <select id="eco-select" required placeholder="Buscar unidad..."></select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted small fw-bold">Tipo de Vehículo</label>
+                                        <select id="tipo" class="form-select" required>
+                                            <option value="Tractocamion">Tractocamión</option>
+                                            <option value="Remolque">Remolque</option>
+                                            <option value="Dolly">Dolly</option>
+                                            <option value="Utilitario">Utilitario</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted small fw-bold">Motivo Principal</label>
+                                        <select id="motivo-entrada-select" class="form-select" required>
+                                            <option value="" disabled selected>Seleccione un motivo...</option>
+                                            <option value="Mantenimiento Preventivo">Mantenimiento Preventivo (Servicio)</option>
+                                            <option value="Falla Mecanica Motor">Falla Mecánica (Motor)</option>
+                                            <option value="Falla Electrica">Falla Eléctrica</option>
+                                            <option value="Falla Frenos">Sistema de Frenos</option>
+                                            <option value="Falla Suspension">Suspensión</option>
+                                            <option value="Llantas y Llantas">Llantas (Pochaduras/Cambios)</option>
+                                            <option value="Falla Transmision">Transmisión / Clutch</option>
+                                            <option value="Falla Aire Acondicionado">Aire Acondicionado</option>
+                                            <option value="Falla Sistema Combustible">Sistema de Combustible</option>
+                                            <option value="Soldadura y Carroceria">Soldadura / Carrocería</option>
+                                            <option value="Colision Siniestro">Colisión / Siniestro</option>
+                                            <option value="Rescate Carretero">Rescate en Carretera</option>
+                                            <option value="Fuga de Aire">Fugas de Aire</option>
+                                            <option value="Otro Motivo">Otro Motivo</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted small fw-bold">Detalles / Otros Motivos</label>
+                                        <textarea id="otros-motivos" class="form-control" rows="2" placeholder="Especificar detalles..."></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted small fw-bold">Días Estimados (Opcional)</label>
+                                        <input type="number" id="dias-estimados" class="form-control" min="1" value="1">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-muted small fw-bold">Fecha de Ingreso (Atrasada)</label>
+                                        <input type="date" id="fecha-entrada-manual" class="form-control">
+                                        <small class="text-muted d-block mt-1">Dejar vacío para usar la fecha actual.</small>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mt-2">Registrar Entrada</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Dashboard de Tarjetas -->
+                    <div class="col-lg-{% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}9{% else %}12{% endif %}">
+                        <div id="loading-indicator" class="text-center py-5" style="display:none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                        </div>
+                        <div class="row" id="dashboard-container">
+                            <!-- Tarjetas dinámicas generadas en script.js -->
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="dashboard-grid" id="dashboard-container">
-                </div>
-        </main>
+        </div>
     </div>
 
     <div class="modal fade" id="editModal" tabindex="-1">
@@ -279,5 +412,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script>
+        document.getElementById('menu-toggle')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('wrapper')?.classList.toggle('toggled');
+        });
+        
+        // Cargar fecha actual formateada
+        (function() {
+            const dateSpan = document.getElementById('current-date-str');
+            if (dateSpan) {
+                const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+                const today = new Date();
+                dateSpan.textContent = today.toLocaleDateString('es-MX', options);
+            }
+        })();
+    </script>
 </body>
 </html>
