@@ -1400,7 +1400,12 @@ html.dark .filtro-badge-custom {
    TRANSICIONES Y ESTILOS DE COLAPSO DEL SIDEBAR (ESTILO SAMSARA)
    ========================================================================== */
 .sidebar-custom {
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Espaciado del list group del sidebar */
+.sidebar-custom .list-group {
+    gap: 8px !important;
 }
 
 .sidebar-custom .brand-info,
@@ -1408,13 +1413,13 @@ html.dark .filtro-badge-custom {
 .sidebar-custom .monthly-efficiency-card,
 .sidebar-custom .user-detail-text {
     opacity: 1;
-    transition: opacity 0.15s ease, visibility 0.15s ease;
+    transition: opacity 0.1s ease, visibility 0.1s ease;
     visibility: visible;
 }
 
 /* Estilos de colapso */
 html.sidebar-collapsed .sidebar-custom {
-    width: 80px !important;
+    width: 70px !important;
 }
 
 html.sidebar-collapsed .sidebar-custom .brand-info,
@@ -1432,10 +1437,7 @@ html.sidebar-collapsed .sidebar-custom .user-detail-text {
 }
 
 html.sidebar-collapsed .sidebar-custom .brand-container {
-    flex-direction: column !important;
-    align-items: center !important;
     justify-content: center !important;
-    gap: 8px !important;
     width: 100% !important;
 }
 
@@ -1445,22 +1447,34 @@ html.sidebar-collapsed .sidebar-custom .logo-brand-wrapper {
 }
 
 html.sidebar-collapsed .sidebar-custom .sidebar-heading {
-    padding: 1.5rem 0.5rem !important;
+    padding: 1.25rem 0.5rem !important;
+}
+
+/* Centrar y espaciar los íconos de forma limpia en el colapso (Estilo Samsara) */
+html.sidebar-collapsed .sidebar-custom .list-group {
+    gap: 12px !important;
 }
 
 html.sidebar-collapsed .sidebar-custom .list-group-item {
     justify-content: center !important;
-    padding: 0.75rem 0 !important;
-    margin: 0 8px !important;
+    width: 44px !important;
+    height: 44px !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 html.sidebar-collapsed .sidebar-custom .list-group-item i {
     margin-right: 0 !important;
-    font-size: 1.25rem !important;
+    font-size: 1.2rem !important;
 }
 
 html.sidebar-collapsed .sidebar-custom .sidebar-footer {
-    padding: 1rem 0.5rem !important;
+    padding: 1.25rem 0.5rem !important;
+    display: flex !important;
+    justify-content: center !important;
 }
 
 html.sidebar-collapsed .sidebar-custom .user-avatar-info {
@@ -1468,13 +1482,43 @@ html.sidebar-collapsed .sidebar-custom .user-avatar-info {
     width: 100% !important;
 }
 
-#sidebar-toggle-btn {
+/* Botón Toggle de Sidebar en el Header (Estilo Samsara) */
+.btn-sidebar-toggle-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
     cursor: pointer;
-    font-size: 1.15rem;
+    transition: all 0.2s ease;
+    margin-right: 1.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+
+.btn-sidebar-toggle-header:hover {
+    background-color: var(--bg-surface-2) !important;
+    color: var(--accent) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.dark .btn-sidebar-toggle-header {
+    border-color: var(--border-color) !important;
+    background-color: var(--bg-surface) !important;
+}
+
+.btn-sidebar-toggle-header i {
+    font-size: 1.1rem;
+    line-height: 1;
+    display: inline-block;
     transition: transform 0.2s ease;
 }
-#sidebar-toggle-btn:hover {
-    transform: scale(1.1);
+
+.btn-sidebar-toggle-header:hover i {
+    transform: scale(1.08);
 }
 
 

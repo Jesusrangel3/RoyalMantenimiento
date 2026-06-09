@@ -23,7 +23,7 @@
         <!-- Sidebar Izquierdo -->
         <div class="sidebar-custom shadow" id="sidebar-wrapper">
             <div class="sidebar-heading">
-                <div class="d-flex align-items-center justify-content-between gap-2 brand-container">
+                <div class="d-flex align-items-center gap-2 brand-container">
                     <div class="d-flex align-items-center gap-2 logo-brand-wrapper">
                         <div class="logo-box">
                             <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="32" class="brand-logo">
@@ -33,9 +33,6 @@
                             <div class="sub-brand-text">CENTRO DE OPERACIONES</div>
                         </div>
                     </div>
-                    <button class="btn btn-link btn-sidebar-toggle text-primary-custom p-0" id="sidebar-toggle-btn">
-                        <i class="bi bi-layout-sidebar-inset"></i>
-                    </button>
                 </div>
             </div>
             
@@ -93,6 +90,9 @@
             <!-- Header superior -->
             <nav class="navbar navbar-expand navbar-light bg-transparent py-3 px-4 topbar-custom justify-content-between">
                 <div class="d-flex align-items-center">
+                    <button class="btn btn-link btn-sidebar-toggle-header d-none d-lg-flex p-0" id="sidebar-toggle-btn">
+                        <i class="bi bi-layout-sidebar-inset"></i>
+                    </button>
                     <button class="btn btn-link d-lg-none me-3 p-0" id="menu-toggle">
                         <i class="bi bi-list fs-3 text-primary-custom"></i>
                     </button>
