@@ -12,11 +12,13 @@
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom-header mb-4 shadow-sm">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <i class="bi bi-truck me-2 fs-3"></i>
-                <strong>Taller CIF</strong>
+                
+                    <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="36">
+                </span>
+               
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -49,7 +51,6 @@
     <div class="container-fluid px-4">
         <div class="row">
 
-            <!-- Formulario Checklist -->
             {% if current_user.perm_checklist_crear or current_user.role == 'Superusuario' %}
             <div class="col-lg-4 mb-4">
                 <div class="card shadow-sm border-0 sticky-top" style="top:20px;">
@@ -64,7 +65,6 @@
                                 <input type="text" id="cl-eco" class="form-control" placeholder="Ej: PR1234" required>
                             </div>
 
-                            <!-- Extintor -->
                             <div class="mb-3 p-3 border rounded bg-white">
                                 <div class="form-check form-switch mb-2">
                                     <input class="form-check-input" type="checkbox" id="cl-extintor" onchange="toggleExtintor()">
@@ -82,7 +82,6 @@
                                 </div>
                             </div>
 
-                            <!-- Corta Corriente -->
                             <div class="mb-3 p-3 border rounded bg-white">
                                 <div class="form-check form-switch mb-2">
                                     <input class="form-check-input" type="checkbox" id="cl-corta" onchange="toggleCorta()">
@@ -96,7 +95,6 @@
                                 </div>
                             </div>
 
-                            <!-- Aire A/C -->
                             <div class="mb-3 p-3 border rounded bg-white">
                                 <div class="form-check form-switch mb-2">
                                     <input class="form-check-input" type="checkbox" id="cl-aire" onchange="toggleAire()">
@@ -119,7 +117,6 @@
             </div>
             {% endif %}
 
-            <!-- Historial de Checklists -->
             <div class="col-lg-{% if current_user.perm_checklist_crear or current_user.role == 'Superusuario' %}8{% else %}12{% endif %}">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
@@ -166,8 +163,8 @@
     <script>
     const USER_ROLE = "{{ current_user.role }}";
     const USER_PERMS = {
-        checklist_borrar: {{ current_user.perm_checklist_borrar | lower }},
-        checklist_editar: {{ current_user.perm_checklist_editar | lower }}
+        checklist_borrar: "{{ current_user.perm_checklist_borrar | lower }}" === "true",
+        checklist_editar: "{{ current_user.perm_checklist_editar | lower }}" === "true"
     };
 
     function toggleExtintor() {

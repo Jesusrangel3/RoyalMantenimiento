@@ -9,10 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('update', () => cargarEntradas());
 
     // --- Referencias DOM ---
-    const dashContainer  = document.getElementById('dashboard-container');
+    const dashContainer    = document.getElementById('dashboard-container');
     const loadingIndicator = document.getElementById('loading-indicator');
-    const searchBar      = document.getElementById('search-bar');
-    const formRegistro   = document.getElementById('form-registro');
+    const searchBar        = document.getElementById('search-bar');
+    const formRegistro     = document.getElementById('form-registro');
 
     // --- Estado ---
     let filtroActual = 'todas';
@@ -93,8 +93,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             if (loadingIndicator) loadingIndicator.style.display = 'none';
             if (dashContainer) dashContainer.innerHTML = `
-                <div class="col-12">
-                    <div class="alert alert-danger">Error al cargar los datos: ${e.message}</div>
+                <div class="empty-state-error" style="grid-column: 1 / -1;">
+                    <div class="alert alert-danger mb-0">
+                        <i class="bi bi-exclamation-circle me-2"></i>Error al cargar los datos: ${e.message}
+                    </div>
                 </div>`;
         }
     }
@@ -114,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(map).forEach(([id, val]) => {
             const el = document.getElementById(id);
             if (!el) return;
-            // Remover badge anterior
             el.querySelectorAll('.filtro-badge').forEach(b => b.remove());
             if (val > 0) {
                 const badge = document.createElement('span');
@@ -133,10 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!entradas || entradas.length === 0) {
             dashContainer.innerHTML = `
-                <div class="col-12 empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <h5 class="text-muted">No hay unidades en este filtro</h5>
-                    <p class="text-muted small">Cambia el filtro o registra una nueva entrada.</p>
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
+                        <h5 class="text-muted mt-3">No hay unidades en este filtro</h5>
+                        <p class="text-muted small">Cambia el filtro o registra una nueva entrada.</p>
+                    </div>
                 </div>`;
             return;
         }
@@ -156,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const canTecnico  = USER_PERMS.taller_tecnico || USER_ROLE === 'Superusuario';
 
             return `
-            <div class="col-sm-6 col-xl-4 mb-3" id="card-wrapper-${e.id}" style="animation-delay:${i * 0.04}s">
+            <div class="dashboard-card-wrapper" id="card-wrapper-${e.id}" style="animation-delay:${i * 0.04}s;">
                 <div class="card card-unidad shadow-sm h-100 ${claseCard}">
                     <div class="card-body pb-2">
                         <!-- Cabecera -->
