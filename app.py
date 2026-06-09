@@ -156,8 +156,8 @@ def get_entradas_pendientes():
             # Usuarios limitados a una sola área específica
             query = TallerEntrada.query.filter_by(area_id=current_user.area_id)
             
-            # Si el usuario es Técnico pero NO Autorizador, solo ve pendientes
-            if current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar:
+            # Si el usuario es Técnico pero NO Autorizador, solo ve pendientes (excepto si tiene rol Mantenimiento)
+            if current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar and current_user.role != 'Mantenimiento':
                  query = query.filter_by(status='pendiente')
             else: 
                  query = query.filter(TallerEntrada.status.in_(['pendiente', 'en_revision']))
@@ -761,8 +761,8 @@ def update_entrada_status(id):
             return jsonify(entrada.to_dict())
             
         elif nuevo_status == 'archivado':
-            # Permitir a usuarios con perm_taller_autorizar o Superusuario
-            if not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+            # Permitir a usuarios con perm_taller_autorizar o Superusuario o Mantenimiento
+            if not current_user.perm_taller_autorizar and current_user.role not in ('Superusuario', 'Mantenimiento'):
                 return jsonify({'error': 'No autorizado'}), 403
 
             if entrada.status != 'en_revision':
@@ -800,7 +800,7 @@ def update_entrada_status(id):
 @app.route('/api/entradas/<int:id>/autorizar', methods=['PUT'])
 @login_required
 def autorizar_salida(id):
-    if not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+    if not current_user.perm_taller_autorizar and current_user.role not in ('Superusuario', 'Mantenimiento'):
         return jsonify({'error': 'No autorizado'}), 403
         
     try:

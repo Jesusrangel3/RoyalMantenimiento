@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const colorBar = e.excedido_por > 0 ? 'bg-danger' : (pct >= 75 ? 'bg-warning' : 'bg-success');
 
             const canEdit     = USER_PERMS.taller_editar || USER_ROLE === 'Superusuario';
-            const canAutorizar= USER_PERMS.taller_autorizar || USER_ROLE === 'Superusuario';
+            const canAutorizar= USER_PERMS.taller_autorizar || USER_ROLE === 'Superusuario' || USER_ROLE === 'Mantenimiento';
             const canTecnico  = USER_PERMS.taller_tecnico || USER_ROLE === 'Superusuario';
 
             return `
