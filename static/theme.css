@@ -1396,3 +1396,85 @@ html.dark .filtro-badge-custom {
     100% { transform: translateX(100%); }
 }
 
+/* ==========================================================================
+   TRANSICIONES Y ESTILOS DE COLAPSO DEL SIDEBAR (ESTILO SAMSARA)
+   ========================================================================== */
+.sidebar-custom {
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.sidebar-custom .brand-info,
+.sidebar-custom .link-text,
+.sidebar-custom .monthly-efficiency-card,
+.sidebar-custom .user-detail-text {
+    opacity: 1;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    visibility: visible;
+}
+
+/* Estilos de colapso */
+html.sidebar-collapsed .sidebar-custom {
+    width: 80px !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .brand-info,
+html.sidebar-collapsed .sidebar-custom .link-text,
+html.sidebar-collapsed .sidebar-custom .monthly-efficiency-card,
+html.sidebar-collapsed .sidebar-custom .user-detail-text {
+    opacity: 0;
+    visibility: hidden;
+    height: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    pointer-events: none;
+    display: none !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .brand-container {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .logo-brand-wrapper {
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .sidebar-heading {
+    padding: 1.5rem 0.5rem !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .list-group-item {
+    justify-content: center !important;
+    padding: 0.75rem 0 !important;
+    margin: 0 8px !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .list-group-item i {
+    margin-right: 0 !important;
+    font-size: 1.25rem !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .sidebar-footer {
+    padding: 1rem 0.5rem !important;
+}
+
+html.sidebar-collapsed .sidebar-custom .user-avatar-info {
+    justify-content: center !important;
+    width: 100% !important;
+}
+
+#sidebar-toggle-btn {
+    cursor: pointer;
+    font-size: 1.15rem;
+    transition: transform 0.2s ease;
+}
+#sidebar-toggle-btn:hover {
+    transform: scale(1.1);
+}
+
+

@@ -9,7 +9,14 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
-    <script>(function(){var t=localStorage.getItem('cif-theme');if(t==='dark')document.documentElement.classList.add('dark');})();</script>
+    <script>
+        (function() {
+            var t = localStorage.getItem('cif-theme');
+            if (t === 'dark') document.documentElement.classList.add('dark');
+            var s = localStorage.getItem('cif-sidebar-state');
+            if (s === 'collapsed') document.documentElement.classList.add('sidebar-collapsed');
+        })();
+    </script>
     <style>
         .metric-verde { background-color: #d4edda; color: #155724; }
         .metric-amarillo { background-color: #fff3cd; color: #856404; }
@@ -33,37 +40,42 @@
         <!-- Sidebar Izquierdo -->
         <div class="sidebar-custom shadow" id="sidebar-wrapper">
             <div class="sidebar-heading">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="logo-box">
-                        <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="32">
+                <div class="d-flex align-items-center justify-content-between gap-2 brand-container">
+                    <div class="d-flex align-items-center gap-2 logo-brand-wrapper">
+                        <div class="logo-box">
+                            <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="32" class="brand-logo">
+                        </div>
+                        <div class="brand-info">
+                            <div class="brand-text">Taller CIF</div>
+                            <div class="sub-brand-text">CENTRO DE OPERACIONES</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="brand-text">Taller CIF</div>
-                        <div class="sub-brand-text">CENTRO DE OPERACIONES</div>
-                    </div>
+                    <button class="btn btn-link btn-sidebar-toggle text-primary-custom p-0" id="sidebar-toggle-btn">
+                        <i class="bi bi-layout-sidebar-inset"></i>
+                    </button>
                 </div>
             </div>
             
             <div class="list-group list-group-flush flex-grow-1 px-3 mt-4 gap-1">
                 <a href="/" class="list-group-item list-group-item-action active">
-                    <i class="bi bi-grid-1x2 me-2"></i> Dashboard Taller
+                    <i class="bi bi-grid-1x2"></i> <span class="link-text">Dashboard Taller</span>
                 </a>
                 {% if current_user.perm_checklist_acceso or current_user.role == 'Superusuario' %}
                 <a href="/checklist" class="list-group-item list-group-item-action">
-                    <i class="bi bi-clipboard-check me-2"></i> Checklist Rapido
+                    <i class="bi bi-clipboard-check"></i> <span class="link-text">Checklist Rapido</span>
                 </a>
                 {% endif %}
                 {% if current_user.role in ['Gerente', 'Superusuario'] %}
                 <a href="/stats" class="list-group-item list-group-item-action">
-                    <i class="bi bi-bar-chart-line me-2"></i> Estadísticas Taller
+                    <i class="bi bi-bar-chart-line"></i> <span class="link-text">Estadísticas Taller</span>
                 </a>
                 <a href="/reportes" class="list-group-item list-group-item-action">
-                    <i class="bi bi-journal-text me-2"></i> Historial Taller
+                    <i class="bi bi-journal-text"></i> <span class="link-text">Historial Taller</span>
                 </a>
                 {% endif %}
                 {% if current_user.role == 'Superusuario' %}
                 <a href="/admin" class="list-group-item list-group-item-action text-warning-custom">
-                    <i class="bi bi-gear me-2"></i> Panel Admin
+                    <i class="bi bi-gear"></i> <span class="link-text">Panel Admin</span>
                 </a>
                 {% endif %}
             </div>
@@ -101,14 +113,6 @@
                     <button class="btn btn-link d-lg-none me-3 p-0" id="menu-toggle">
                         <i class="bi bi-list fs-3 text-primary-custom"></i>
                     </button>
-                    <!-- Breadcrumbs -->
-                    <nav aria-label="breadcrumb" class="d-none d-sm-block">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="#" class="text-muted-custom text-decoration-none">Operaciones</a></li>
-                            <li class="breadcrumb-item"><a href="#" class="text-muted-custom text-decoration-none">Mantenimiento</a></li>
-                            <li class="breadcrumb-item active text-primary-custom" aria-current="page">Dashboard Taller</li>
-                        </ol>
-                    </nav>
                 </div>
                 <div class="d-flex align-items-center gap-3">
                     <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()">

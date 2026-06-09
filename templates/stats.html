@@ -7,47 +7,108 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
-    <script>(function(){var t=localStorage.getItem('cif-theme');if(t==='dark')document.documentElement.classList.add('dark');})();</script>
+    <script>
+        (function() {
+            var t = localStorage.getItem('cif-theme');
+            if (t === 'dark') document.documentElement.classList.add('dark');
+            var s = localStorage.getItem('cif-sidebar-state');
+            if (s === 'collapsed') document.documentElement.classList.add('sidebar-collapsed');
+        })();
+    </script>
 </head>
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom-header mb-4 shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                
-                    <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="36">
-                </span>
-                
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Dashboard Taller</a></li>
-                    {% if current_user.perm_checklist_acceso or current_user.role == 'Superusuario' %}
-                    <li class="nav-item"><a class="nav-link" href="/checklist">Checklist Rápido</a></li>
-                    {% endif %}
-                    {% if current_user.role in ['Gerente', 'Superusuario'] %}
-                    <li class="nav-item"><a class="nav-link active" href="/stats">Estadísticas Taller</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/reportes">Historial Taller</a></li>
-                    {% endif %}
-                    {% if current_user.role == 'Superusuario' %}
-                    <li class="nav-item"><a class="nav-link text-warning" href="/admin"><i class="bi bi-gear-fill"></i> Panel Admin</a></li>
-                    {% endif %}
-                </ul>
-                <div class="d-flex align-items-center text-white gap-2">
-                    <button id="theme-toggle-btn" type="button" onclick="toggleTheme()">
-                        <i class="bi bi-moon-fill"></i>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Izquierdo -->
+        <div class="sidebar-custom shadow" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <div class="d-flex align-items-center justify-content-between gap-2 brand-container">
+                    <div class="d-flex align-items-center gap-2 logo-brand-wrapper">
+                        <div class="logo-box">
+                            <img src="{{ url_for('static', filename='img/LOGO2TLLCIF.png') }}" alt="Taller CIF" height="32" class="brand-logo">
+                        </div>
+                        <div class="brand-info">
+                            <div class="brand-text">Taller CIF</div>
+                            <div class="sub-brand-text">CENTRO DE OPERACIONES</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-link btn-sidebar-toggle text-primary-custom p-0" id="sidebar-toggle-btn">
+                        <i class="bi bi-layout-sidebar-inset"></i>
                     </button>
-                    <span class="me-1"><i class="bi bi-person-circle"></i> {{ current_user.username }}</span>
-                    <a href="/logout" class="btn btn-outline-light btn-sm">Salir</a>
+                </div>
+            </div>
+            
+            <div class="list-group list-group-flush flex-grow-1 px-3 mt-4 gap-1">
+                <a href="/" class="list-group-item list-group-item-action">
+                    <i class="bi bi-grid-1x2"></i> <span class="link-text">Dashboard Taller</span>
+                </a>
+                {% if current_user.perm_checklist_acceso or current_user.role == 'Superusuario' %}
+                <a href="/checklist" class="list-group-item list-group-item-action">
+                    <i class="bi bi-clipboard-check"></i> <span class="link-text">Checklist Rapido</span>
+                </a>
+                {% endif %}
+                {% if current_user.role in ['Gerente', 'Superusuario'] %}
+                <a href="/stats" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-bar-chart-line"></i> <span class="link-text">Estadísticas Taller</span>
+                </a>
+                <a href="/reportes" class="list-group-item list-group-item-action">
+                    <i class="bi bi-journal-text"></i> <span class="link-text">Historial Taller</span>
+                </a>
+                {% endif %}
+                {% if current_user.role == 'Superusuario' %}
+                <a href="/admin" class="list-group-item list-group-item-action text-warning-custom">
+                    <i class="bi bi-gear"></i> <span class="link-text">Panel Admin</span>
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer p-3">
+                <div class="monthly-efficiency-card mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="small text-muted-custom">Eficiencia mensual</span>
+                        <span class="small fw-bold text-success-custom">87.4%</span>
+                    </div>
+                    <div class="progress progress-sidebar animate-pulse" style="height:4px;">
+                        <div class="progress-bar bg-success-custom" style="width: 87.4%"></div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="user-avatar-info d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle">
+                            {{ current_user.username[0].upper() if current_user.username else 'U' }}
+                        </div>
+                        <div class="user-detail-text">
+                            <div class="user-name-str">{{ current_user.username }}</div>
+                            <div class="user-role-str text-muted-custom">{{ current_user.role }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
 
-    <div class="container-fluid px-4">
+        <!-- Contenedor Principal (Main Area) -->
+        <div id="page-content-wrapper" class="flex-grow-1">
+            <!-- Header superior -->
+            <nav class="navbar navbar-expand navbar-light bg-transparent py-3 px-4 topbar-custom justify-content-between">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link d-lg-none me-3 p-0" id="menu-toggle">
+                        <i class="bi bi-list fs-3 text-primary-custom"></i>
+                    </button>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <div class="vertical-divider"></div>
+                    <div class="d-flex align-items-center gap-2 text-primary-custom text-sm">
+                        <span class="user-badge-text font-monospace d-none d-md-inline-block">{{ current_user.username }}</span>
+                        <a href="/logout" class="btn btn-outline-light-custom btn-sm">Salir <i class="bi bi-box-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h4 class="fw-bold mb-0">
                 <i class="bi bi-bar-chart-line-fill text-primary me-2"></i>
@@ -77,9 +138,19 @@
         <div id="stats-container"></div>
     </div>
 
+            </div> <!-- container-fluid -->
+        </div> <!-- page-content-wrapper -->
+    </div> <!-- wrapper -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="{{ url_for('static', filename='static.js') }}"></script>
     <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script>
+        document.getElementById('menu-toggle')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('wrapper')?.classList.toggle('toggled');
+        });
+    </script>
 </body>
 </html>
