@@ -945,7 +945,7 @@ html.dark {
 
 /* Envoltura Global */
 #wrapper {
-    overflow-x: hidden;
+    overflow-x: clip;
     background-color: var(--bg-main) !important;
     background-image: var(--bg-main-gradient) !important;
     min-height: 100vh;
@@ -956,7 +956,6 @@ html.dark {
     position: sticky;
     top: 0;
     height: 100vh;
-    overflow-y: auto;
     width: 260px;
     background-color: var(--sidebar-bg) !important;
     border-right: 1px solid var(--border-custom) !important;
