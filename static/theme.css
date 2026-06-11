@@ -953,7 +953,10 @@ html.dark {
 
 /* Sidebar Custom */
 .sidebar-custom {
-    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
     width: 260px;
     background-color: var(--sidebar-bg) !important;
     border-right: 1px solid var(--border-custom) !important;
