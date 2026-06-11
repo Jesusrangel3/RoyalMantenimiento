@@ -226,7 +226,7 @@ body,
     border-color: rgba(255,255,255,0.18) !important;
 }
 #f-cerca:checked + #label-filtro-cerca-vencer {
-    background: #fbbf24 !important;
+    background: #d97706 !important;
     color: #ffffff !important;
     border-color: rgba(255,255,255,0.18) !important;
 }
@@ -239,6 +239,13 @@ body,
     background: #1d4ed8 !important;
     color: #ffffff !important;
     border-color: rgba(255,255,255,0.18) !important;
+}
+
+/* Asegurar legibilidad del texto en los contenedores de filtro cuando están seleccionados */
+.btn-check-custom:checked + .filter-card .kpi-title,
+.btn-check-custom:checked + .filter-card .kpi-title i,
+.btn-check-custom:checked + .filter-card .kpi-value {
+    color: #ffffff !important;
 }
 
 /* Focus accesible (teclado) */
