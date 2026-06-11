@@ -9,16 +9,50 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
     <script>(function(){var t=localStorage.getItem('cif-theme');if(t==='dark')document.documentElement.classList.add('dark');})();</script>
     <style>
-        body { background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        html.dark body { background: linear-gradient(135deg, #080d18 0%, #0d1626 100%); }
-        .login-card { border-radius: 1rem; max-width: 420px; width: 100%; }
-        #login-theme-toggle { position: fixed; top: 1rem; right: 1rem; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 8px; padding: 0.4rem 0.65rem; cursor: pointer; font-size: 1rem; transition: background 0.2s ease; z-index: 999; }
-        #login-theme-toggle:hover { background: rgba(255,255,255,0.28); }
+        body {
+            background-color: var(--bg-main) !important;
+            background-image: var(--bg-main-gradient) !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.25s ease !important;
+        }
+        .login-card {
+            border-radius: 1.25rem !important;
+            max-width: 420px;
+            width: 100%;
+            background-color: var(--bg-surface) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-hover) !important;
+        }
+        #login-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--bg-surface-2) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: 8px;
+            padding: 0.45rem 0.7rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        #login-theme-toggle:hover {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--accent) !important;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
     <!-- Toggle de tema en pantalla login -->
-    <button id="login-theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema">
+    <button id="login-theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
         <i class="bi bi-moon-fill"></i>
     </button>
     <div class="container">
@@ -47,14 +81,14 @@
                             <div class="mb-3">
                                 <label for="username" class="form-label fw-semibold">Usuario</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
                                     <input type="text" class="form-control" id="username" name="username" placeholder="Ingresa tu usuario" required autofocus>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label for="password" class="form-label fw-semibold">Contraseña</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña" required>
                                 </div>
                             </div>

@@ -123,12 +123,17 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.entries(map).forEach(([id, val]) => {
             const el = document.getElementById(id);
             if (!el) return;
-            el.querySelectorAll('.filtro-badge, .filtro-badge-custom').forEach(b => b.remove());
-            if (val > 0) {
-                const badge = document.createElement('span');
-                badge.className = 'filtro-badge-custom';
-                badge.textContent = val;
-                el.appendChild(badge);
+            const kpiValue = el.querySelector('.kpi-value');
+            if (kpiValue) {
+                kpiValue.textContent = val;
+            } else {
+                el.querySelectorAll('.filtro-badge, .filtro-badge-custom').forEach(b => b.remove());
+                if (val > 0) {
+                    const badge = document.createElement('span');
+                    badge.className = 'filtro-badge-custom';
+                    badge.textContent = val;
+                    el.appendChild(badge);
+                }
             }
         });
     }
@@ -213,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
             <div class="col-sm-6 col-xl-4 mb-3 dashboard-card-wrapper" id="card-wrapper-${e.id}" style="animation-delay:${i * 0.04}s;">
                 <div class="card card-unidad shadow-sm h-100 ${claseCard}">
+                    <div class="card-status-header"></div>
                     <div class="card-body pb-2">
                         <!-- Cabecera -->
                         <div class="d-flex justify-content-between align-items-start mb-2">
@@ -224,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
 
                         <!-- Motivo -->
-                        <p class="mb-1 small"><i class="bi bi-wrench text-muted me-1"></i><strong>${razones || 'Sin motivo'}</strong></p>
+                        <p class="mb-1 small text-primary-custom"><i class="bi bi-wrench text-muted me-1"></i><strong>${razones || 'Sin motivo'}</strong></p>
                         ${e.otros_motivos ? `<p class="mb-1 small text-muted fst-italic">${e.otros_motivos}</p>` : ''}
 
                         <!-- Días -->
@@ -246,34 +252,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <!-- Botones -->
                     <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-3">
-                        <div class="d-flex gap-1 flex-wrap">
+                        <div class="d-flex justify-content-center gap-2 card-actions-bar">
                             <!-- Bitácora (todos con acceso pueden ver) -->
-                            <button class="btn btn-outline-secondary btn-sm flex-grow-1"
-                                onclick="abrirLog(${e.id}, '${e.numero_economico}')">
-                                <i class="bi bi-journal-text me-1"></i>Bitácora
+                            <button class="btn-card-action btn-action-secondary"
+                                title="Bitácora"
+                                onclick="abrirLog(${e.id}, '${e.numero_economico}')"
+                                aria-label="Bitácora">
+                                <i class="bi bi-journal-text"></i>
                             </button>
 
                             ${(canTecnico || canEdit) ? `
-                            <button class="btn btn-outline-primary btn-sm flex-grow-1"
-                                onclick="abrirAgregarNota(${e.id}, '${e.numero_economico}')">
-                                <i class="bi bi-plus-circle me-1"></i>Nota
+                            <button class="btn-card-action btn-action-primary"
+                                title="Agregar Nota"
+                                onclick="abrirAgregarNota(${e.id}, '${e.numero_economico}')"
+                                aria-label="Agregar Nota">
+                                <i class="bi bi-chat-left-text"></i>
                             </button>` : ''}
 
                             ${canEdit ? `
-                            <button class="btn btn-outline-warning btn-sm flex-grow-1"
-                                onclick="abrirEditar(${e.id}, '${e.numero_economico}', '${razones}', ${e.dias_estimados}, \`${e.otros_motivos || ''}\`)">
-                                <i class="bi bi-pencil me-1"></i>Editar
+                            <button class="btn-card-action btn-action-warning"
+                                title="Editar Entrada"
+                                onclick="abrirEditar(${e.id}, '${e.numero_economico}', '${razones}', ${e.dias_estimados}, \`${e.otros_motivos || ''}\`)"
+                                aria-label="Editar Entrada">
+                                <i class="bi bi-pencil-square"></i>
                             </button>` : ''}
 
                             ${canAutorizar ? `
                             ${e.status === 'pendiente' ? `
-                            <button class="btn btn-outline-primary btn-sm flex-grow-1"
-                                onclick="cambiarStatus(${e.id}, 'en_revision')">
-                                <i class="bi bi-send me-1"></i>Autorizar
+                            <button class="btn-card-action btn-action-success"
+                                title="Autorizar Entrada"
+                                onclick="cambiarStatus(${e.id}, 'en_revision')"
+                                aria-label="Autorizar Entrada">
+                                <i class="bi bi-send"></i>
                             </button>` : `
-                            <button class="btn btn-outline-success btn-sm flex-grow-1"
-                                onclick="archivarEntrada(${e.id})">
-                                <i class="bi bi-archive me-1"></i>Archivar
+                            <button class="btn-card-action btn-action-danger"
+                                title="Archivar Entrada"
+                                onclick="archivarEntrada(${e.id})"
+                                aria-label="Archivar Entrada">
+                                <i class="bi bi-archive"></i>
                             </button>`}` : ''}
                         </div>
                     </div>
@@ -490,5 +506,49 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res.ok) cargarEntradas();
         else { const e = await res.json(); alert(e.error || 'Error al archivar.'); }
     };
+
+    // ================================================
+    //  MANEJO DE ESTADO DEL POPOVER "AGREGAR UNIDAD"
+    // ================================================
+    const btnToggle = document.getElementById('btn-toggle-recepcion');
+    const popoverForm = document.getElementById('popover-recepcion-form');
+    const btnClose = document.getElementById('btn-close-popover');
+
+    if (btnToggle && popoverForm) {
+        // Toggle visibility
+        btnToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popoverForm.classList.toggle('d-none');
+        });
+
+        // Close on close button click
+        if (btnClose) {
+            btnClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                popoverForm.classList.add('d-none');
+            });
+        }
+
+        // Prevent closing when clicking inside the popover
+        popoverForm.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Click Outside Handler
+        document.addEventListener('click', (e) => {
+            if (!popoverForm.classList.contains('d-none')) {
+                popoverForm.classList.add('d-none');
+            }
+        });
+
+        // Verificar parámetro de URL para abrir automáticamente
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('open_recepcion') === 'true') {
+            popoverForm.classList.remove('d-none');
+            // Limpiar parámetro de la URL sin recargar la página
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+    }
 
 });

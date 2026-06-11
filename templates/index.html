@@ -75,6 +75,75 @@
                     <i class="bi bi-gear"></i> <span class="link-text">Panel Admin</span>
                 </a>
                 {% endif %}
+
+                {% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}
+                <div class="position-relative sidebar-popover-container">
+                    <button class="list-group-item list-group-item-action border-0 w-100 text-start d-flex align-items-center" id="btn-toggle-recepcion">
+                        <i class="bi bi-plus-lg text-primary-custom"></i> <span class="link-text">Agregar Unidad</span>
+                    </button>
+                    <!-- Popover Recepción -->
+                    <div class="card form-recepcion-card popover-recepcion shadow-lg d-none" id="popover-recepcion-form">
+                        <div class="card-header border-bottom-0 pt-3 pb-0 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="form-header-icon"><i class="bi bi-plus-lg"></i></div>
+                                <h6 class="fw-bold mb-0 text-primary-custom">Ingresar Unidad</h6>
+                            </div>
+                            <button type="button" class="btn-close" id="btn-close-popover" aria-label="Close"></button>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-registro">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Número Económico</label>
+                                    <select id="eco-select" required placeholder="Buscar unidad..."></select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Tipo de Vehículo</label>
+                                    <select id="tipo" class="form-select" required>
+                                        <option value="Tractocamion">Tractocamión</option>
+                                        <option value="Remolque">Remolque</option>
+                                        <option value="Dolly">Dolly</option>
+                                        <option value="Utilitario">Utilitario</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Motivo Principal</label>
+                                    <select id="motivo-entrada-select" class="form-select" required>
+                                        <option value="" disabled selected>Seleccione un motivo...</option>
+                                        <option value="Mantenimiento Preventivo">Mantenimiento Preventivo (Servicio)</option>
+                                        <option value="Falla Mecanica Motor">Falla Mecánica (Motor)</option>
+                                        <option value="Falla Electrica">Falla Eléctrica</option>
+                                        <option value="Falla Frenos">Sistema de Frenos</option>
+                                        <option value="Falla Suspension">Suspensión</option>
+                                        <option value="Llantas y Llantas">Llantas (Pochaduras/Cambios)</option>
+                                        <option value="Falla Transmision">Transmisión / Clutch</option>
+                                        <option value="Falla Aire Acondicionado">Aire Acondicionado</option>
+                                        <option value="Falla Sistema Combustible">Sistema de Combustible</option>
+                                        <option value="Soldadura y Carroceria">Soldadura / Carrocería</option>
+                                        <option value="Colision Siniestro">Colisión / Siniestro</option>
+                                        <option value="Rescate Carretero">Rescate en Carretera</option>
+                                        <option value="Fuga de Aire">Fugas de Aire</option>
+                                        <option value="Otro Motivo">Otro Motivo</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Detalles / Otros Motivos</label>
+                                    <textarea id="otros-motivos" class="form-control" rows="2" placeholder="Especificar detalles..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Días Estimados (Opcional)</label>
+                                    <input type="number" id="dias-estimados" class="form-control" min="1" value="1">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Fecha de Ingreso (Atrasada)</label>
+                                    <input type="date" id="fecha-entrada-manual" class="form-control">
+                                    <small class="text-muted d-block mt-1">Dejar vacío para usar la fecha actual.</small>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mt-2">Registrar Entrada</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
             
             <!-- Sidebar Footer -->
@@ -115,13 +184,48 @@
                     </button>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()">
+                    <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()" title="Cambiar Tema">
                         <i class="bi bi-moon-fill"></i>
                     </button>
                     <div class="vertical-divider"></div>
-                    <div class="d-flex align-items-center gap-2 text-primary-custom text-sm">
-                        <span class="user-badge-text font-monospace d-none d-md-inline-block">{{ current_user.username }}</span>
-                        <a href="/logout" class="btn btn-outline-light-custom btn-sm">Salir <i class="bi bi-box-arrow-right ms-1"></i></a>
+                    <!-- Widget de Usuario Premium -->
+                    <div class="user-profile-widget d-flex align-items-center gap-3">
+                        <!-- Campana de Notificación con Punto de Pulso -->
+                        <div class="notification-bell-container position-relative cursor-pointer" title="Notificaciones">
+                            <i class="bi bi-bell fs-5"></i>
+                            <span class="notification-pulse-dot"></span>
+                        </div>
+                        <!-- Píldora de Perfil (Dropdown de Bootstrap) -->
+                        <div class="dropdown">
+                            <div class="user-profile-pill dropdown-toggle d-flex align-items-center gap-2" 
+                                 id="userProfileDropdown" 
+                                 data-bs-toggle="dropdown" 
+                                 aria-expanded="false" 
+                                 role="button">
+                                <div class="user-avatar-circle">
+                                    {{ current_user.username[0].upper() }}
+                                </div>
+                                <div class="user-profile-info d-none d-md-block text-start">
+                                    <div class="user-profile-name">{{ current_user.username }}</div>
+                                    <div class="user-profile-role">{{ current_user.role }}</div>
+                                </div>
+                                <i class="bi bi-chevron-down fs-xs text-muted ms-1"></i>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 animate slideIn" aria-labelledby="userProfileDropdown">
+                                <li class="dropdown-header d-md-none">
+                                    <div class="fw-bold text-primary">{{ current_user.username }}</div>
+                                    <div class="text-muted small">{{ current_user.role }}</div>
+                                </li>
+                                <li class="dropdown-header text-muted small uppercase-title d-none d-md-block">Mi Cuenta</li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="/logout">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        <span>Cerrar Sesión</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -141,97 +245,64 @@
                     </div>
                 </div>
 
-                <!-- Fila de Tarjetas KPI -->
+
+                <!-- Fila de Tarjetas de Filtro Interactivos (Estilo KPIs) -->
                 <div class="row mb-4">
-                    <div class="col-6 col-lg-3 mb-3 mb-lg-0">
-                        <div class="card kpi-card shadow-sm h-100">
-                            <div class="card-body d-flex align-items-center justify-content-between p-3">
-                                <div>
-                                    <div class="kpi-title text-muted-custom small">UNIDADES EN TALLER</div>
-                                    <h3 class="kpi-value fw-bold mb-0 text-primary-custom" id="kpi-total-unidades">0</h3>
-                                    <div class="kpi-subtext small text-muted-custom mt-1">+0 vs. semana</div>
-                                </div>
-                                <div class="kpi-icon-container bg-primary-subtle text-primary-custom">
-                                    <i class="bi bi-truck"></i>
-                                </div>
+                    <div class="col-6 col-md-4 col-lg mb-3 mb-lg-0">
+                        <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-todas" value="todas" autocomplete="off" checked>
+                        <label class="filter-card kpi-card shadow-sm h-100 w-100" for="f-todas" id="label-filtro-todas">
+                            <div class="card-body p-3">
+                                <div class="kpi-title text-muted-custom small"><i class="bi bi-grid-fill me-1"></i>TODAS</div>
+                                <h3 class="kpi-value fw-bold mb-0 text-primary-custom">0</h3>
                             </div>
-                        </div>
+                            <div class="kpi-neon-bar kpi-neon-blue"></div>
+                        </label>
                     </div>
-                    <div class="col-6 col-lg-3 mb-3 mb-lg-0">
-                        <div class="card kpi-card shadow-sm h-100">
-                            <div class="card-body d-flex align-items-center justify-content-between p-3">
-                                <div>
-                                    <div class="kpi-title text-muted-custom small">DÍAS PROMEDIO</div>
-                                    <h3 class="kpi-value fw-bold mb-0 text-primary-custom" id="kpi-promedio-dias">0</h3>
-                                    <div class="kpi-subtext small text-muted-custom mt-1">Días de estadía</div>
-                                </div>
-                                <div class="kpi-icon-container bg-info-subtle text-info-custom">
-                                    <i class="bi bi-clock"></i>
-                                </div>
+                    <div class="col-6 col-md-4 col-lg mb-3 mb-lg-0">
+                        <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-tiempo" value="en_tiempo" autocomplete="off">
+                        <label class="filter-card kpi-card shadow-sm h-100 w-100" for="f-tiempo" id="label-filtro-en-tiempo">
+                            <div class="card-body p-3">
+                                <div class="kpi-title text-muted-custom small"><i class="bi bi-check-circle-fill me-1"></i>EN TIEMPO</div>
+                                <h3 class="kpi-value fw-bold mb-0 text-success-custom">0</h3>
                             </div>
-                        </div>
+                            <div class="kpi-neon-bar kpi-neon-success"></div>
+                        </label>
                     </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card kpi-card shadow-sm h-100">
-                            <div class="card-body d-flex align-items-center justify-content-between p-3">
-                                <div>
-                                    <div class="kpi-title text-muted-custom small">FUERA DE TIEMPO</div>
-                                    <h3 class="kpi-value fw-bold mb-0 text-danger-custom" id="kpi-fuera-tiempo">0</h3>
-                                    <div class="kpi-subtext small text-muted-custom mt-1" id="kpi-fuera-tiempo-pct">0% excedidas</div>
-                                </div>
-                                <div class="kpi-icon-container bg-danger-subtle text-danger-custom">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                </div>
+                    <div class="col-6 col-md-4 col-lg mb-3 mb-lg-0">
+                        <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-cerca" value="cerca_de_vencer" autocomplete="off">
+                        <label class="filter-card kpi-card shadow-sm h-100 w-100" for="f-cerca" id="label-filtro-cerca-vencer">
+                            <div class="card-body p-3">
+                                <div class="kpi-title text-muted-custom small"><i class="bi bi-clock-fill me-1"></i>CERCA DE VENCER</div>
+                                <h3 class="kpi-value fw-bold mb-0 text-warning-custom">0</h3>
                             </div>
-                        </div>
+                            <div class="kpi-neon-bar kpi-neon-warning"></div>
+                        </label>
                     </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="card kpi-card shadow-sm h-100">
-                            <div class="card-body d-flex align-items-center justify-content-between p-3">
-                                <div>
-                                    <div class="kpi-title text-muted-custom small">EFICIENCIA OT</div>
-                                    <h3 class="kpi-value fw-bold mb-0 text-success-custom" id="kpi-eficiencia">0%</h3>
-                                    <div class="kpi-subtext small text-muted-custom mt-1">Órdenes en tiempo</div>
-                                </div>
-                                <div class="kpi-icon-container bg-success-subtle text-success-custom">
-                                    <i class="bi bi-graph-up-arrow"></i>
-                                </div>
+                    <div class="col-6 col-md-6 col-lg mb-3 mb-lg-0">
+                        <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-fuera" value="fuera_de_tiempo" autocomplete="off">
+                        <label class="filter-card kpi-card shadow-sm h-100 w-100" for="f-fuera" id="label-filtro-fuera-tiempo">
+                            <div class="card-body p-3">
+                                <div class="kpi-title text-muted-custom small"><i class="bi bi-exclamation-triangle-fill me-1"></i>FUERA DE TIEMPO</div>
+                                <h3 class="kpi-value fw-bold mb-0 text-danger-custom">0</h3>
                             </div>
-                        </div>
+                            <div class="kpi-neon-bar kpi-neon-danger"></div>
+                        </label>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg">
+                        <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-revision" value="en_revision" autocomplete="off">
+                        <label class="filter-card kpi-card shadow-sm h-100 w-100" for="f-revision" id="label-filtro-en-revision">
+                            <div class="card-body p-3">
+                                <div class="kpi-title text-muted-custom small"><i class="bi bi-person-check-fill me-1"></i>POR AUTORIZAR</div>
+                                <h3 class="kpi-value fw-bold mb-0 text-info-custom">0</h3>
+                            </div>
+                            <div class="kpi-neon-bar kpi-neon-cyan"></div>
+                        </label>
                     </div>
                 </div>
 
-                <!-- Filtros y Búsqueda -->
-                <div class="row mb-4 align-items-center gap-3 gap-md-0">
-                    <div class="col-md-8">
-                        <div class="btn-group-custom shadow-sm" role="group">
-                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-todas" value="todas" autocomplete="off" checked>
-                            <label class="filter-pill-custom" for="f-todas" id="label-filtro-todas">
-                                <i class="bi bi-grid-fill me-1"></i>Todas
-                            </label>
-
-                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-tiempo" value="en_tiempo" autocomplete="off">
-                            <label class="filter-pill-custom" for="f-tiempo" id="label-filtro-en-tiempo">
-                                <i class="bi bi-check-circle-fill me-1"></i>En Tiempo
-                            </label>
-
-                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-cerca" value="cerca_de_vencer" autocomplete="off">
-                            <label class="filter-pill-custom" for="f-cerca" id="label-filtro-cerca-vencer">
-                                <i class="bi bi-clock-fill me-1"></i>Cerca de Vencer
-                            </label>
-
-                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-fuera" value="fuera_de_tiempo" autocomplete="off">
-                            <label class="filter-pill-custom" for="f-fuera" id="label-filtro-fuera-tiempo">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Fuera de Tiempo
-                            </label>
-
-                            <input type="radio" class="btn-check-custom" name="filtro-estado" id="f-revision" value="en_revision" autocomplete="off">
-                            <label class="filter-pill-custom" for="f-revision" id="label-filtro-en-revision">
-                                <i class="bi bi-person-check-fill me-1"></i>Por Autorizar
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
+                <!-- Fila de Búsqueda -->
+                <div class="row mb-4 justify-content-end">
+                    <div class="col-12 col-md-4">
                         <div class="search-group-custom shadow-sm">
                             <span class="search-icon-custom"><i class="bi bi-search"></i></span>
                             <input type="text" id="search-bar" class="search-input-custom" placeholder="Buscar económico o motivo...">
@@ -240,71 +311,8 @@
                 </div>
 
                 <div class="row">
-                    <!-- Formulario Recepción -->
-                    {% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}
-                    <div class="col-lg-3 mb-4" id="panel-recepcion">
-                        <div class="card form-recepcion-card shadow-sm sticky-top" style="top: 20px;">
-                            <div class="card-header border-bottom-0 pt-4 pb-0 d-flex align-items-center gap-2">
-                                <div class="form-header-icon"><i class="bi bi-plus-lg"></i></div>
-                                <h5 class="fw-bold mb-0 text-primary-custom">Ingresar Unidad</h5>
-                            </div>
-                            <div class="card-body">
-                                <form id="form-registro">
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small fw-bold">Número Económico</label>
-                                        <select id="eco-select" required placeholder="Buscar unidad..."></select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small fw-bold">Tipo de Vehículo</label>
-                                        <select id="tipo" class="form-select" required>
-                                            <option value="Tractocamion">Tractocamión</option>
-                                            <option value="Remolque">Remolque</option>
-                                            <option value="Dolly">Dolly</option>
-                                            <option value="Utilitario">Utilitario</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small fw-bold">Motivo Principal</label>
-                                        <select id="motivo-entrada-select" class="form-select" required>
-                                            <option value="" disabled selected>Seleccione un motivo...</option>
-                                            <option value="Mantenimiento Preventivo">Mantenimiento Preventivo (Servicio)</option>
-                                            <option value="Falla Mecanica Motor">Falla Mecánica (Motor)</option>
-                                            <option value="Falla Electrica">Falla Eléctrica</option>
-                                            <option value="Falla Frenos">Sistema de Frenos</option>
-                                            <option value="Falla Suspension">Suspensión</option>
-                                            <option value="Llantas y Llantas">Llantas (Pochaduras/Cambios)</option>
-                                            <option value="Falla Transmision">Transmisión / Clutch</option>
-                                            <option value="Falla Aire Acondicionado">Aire Acondicionado</option>
-                                            <option value="Falla Sistema Combustible">Sistema de Combustible</option>
-                                            <option value="Soldadura y Carroceria">Soldadura / Carrocería</option>
-                                            <option value="Colision Siniestro">Colisión / Siniestro</option>
-                                            <option value="Rescate Carretero">Rescate en Carretera</option>
-                                            <option value="Fuga de Aire">Fugas de Aire</option>
-                                            <option value="Otro Motivo">Otro Motivo</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small fw-bold">Detalles / Otros Motivos</label>
-                                        <textarea id="otros-motivos" class="form-control" rows="2" placeholder="Especificar detalles..."></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small fw-bold">Días Estimados (Opcional)</label>
-                                        <input type="number" id="dias-estimados" class="form-control" min="1" value="1">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small fw-bold">Fecha de Ingreso (Atrasada)</label>
-                                        <input type="date" id="fecha-entrada-manual" class="form-control">
-                                        <small class="text-muted d-block mt-1">Dejar vacío para usar la fecha actual.</small>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 mt-2">Registrar Entrada</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
                     <!-- Dashboard de Tarjetas -->
-                    <div class="col-lg-{% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}9{% else %}12{% endif %}">
+                    <div class="col-lg-12">
                         <div id="loading-indicator" class="text-center py-5" style="display:none;">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="visually-hidden">Cargando...</span>

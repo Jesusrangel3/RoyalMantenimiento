@@ -57,6 +57,12 @@
                     <i class="bi bi-gear"></i> <span class="link-text">Panel Admin</span>
                 </a>
                 {% endif %}
+
+                {% if current_user.perm_taller_registro or current_user.role == 'Superusuario' %}
+                <a href="/?open_recepcion=true" class="list-group-item list-group-item-action">
+                    <i class="bi bi-plus-lg"></i> <span class="link-text">Agregar Unidad</span>
+                </a>
+                {% endif %}
             </div>
             
             <!-- Sidebar Footer -->
@@ -97,13 +103,48 @@
                     </button>
                 </div>
                 <div class="d-flex align-items-center gap-3">
-                    <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()">
+                    <button id="theme-toggle-btn" class="theme-toggle-btn-custom" type="button" onclick="toggleTheme()" title="Cambiar Tema">
                         <i class="bi bi-moon-fill"></i>
                     </button>
                     <div class="vertical-divider"></div>
-                    <div class="d-flex align-items-center gap-2 text-primary-custom text-sm">
-                        <span class="user-badge-text font-monospace d-none d-md-inline-block">{{ current_user.username }}</span>
-                        <a href="/logout" class="btn btn-outline-light-custom btn-sm">Salir <i class="bi bi-box-arrow-right ms-1"></i></a>
+                    <!-- Widget de Usuario Premium -->
+                    <div class="user-profile-widget d-flex align-items-center gap-3">
+                        <!-- Campana de Notificación con Punto de Pulso -->
+                        <div class="notification-bell-container position-relative cursor-pointer" title="Notificaciones">
+                            <i class="bi bi-bell fs-5"></i>
+                            <span class="notification-pulse-dot"></span>
+                        </div>
+                        <!-- Píldora de Perfil (Dropdown de Bootstrap) -->
+                        <div class="dropdown">
+                            <div class="user-profile-pill dropdown-toggle d-flex align-items-center gap-2" 
+                                 id="userProfileDropdown" 
+                                 data-bs-toggle="dropdown" 
+                                 aria-expanded="false" 
+                                 role="button">
+                                <div class="user-avatar-circle">
+                                    {{ current_user.username[0].upper() }}
+                                </div>
+                                <div class="user-profile-info d-none d-md-block text-start">
+                                    <div class="user-profile-name">{{ current_user.username }}</div>
+                                    <div class="user-profile-role">{{ current_user.role }}</div>
+                                </div>
+                                <i class="bi bi-chevron-down fs-xs text-muted ms-1"></i>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 animate slideIn" aria-labelledby="userProfileDropdown">
+                                <li class="dropdown-header d-md-none">
+                                    <div class="fw-bold text-primary">{{ current_user.username }}</div>
+                                    <div class="text-muted small">{{ current_user.role }}</div>
+                                </li>
+                                <li class="dropdown-header text-muted small uppercase-title d-none d-md-block">Mi Cuenta</li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="/logout">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        <span>Cerrar Sesión</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
