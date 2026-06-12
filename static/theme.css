@@ -562,8 +562,8 @@ body > .navbar {
    ============================================ */
 #theme-toggle-btn {
     background: var(--toggle-bg) !important;
-    border: 1px solid rgba(255,255,255,0.22) !important;
-    color: #fff !important;
+    border: 1px solid var(--border-custom) !important;
+    color: var(--text-primary-custom) !important;
     border-radius: 8px !important;
     padding: 0.32rem 0.58rem !important;
     font-size: 1rem !important;
@@ -573,7 +573,7 @@ body > .navbar {
     margin-right: 0.5rem;
 }
 #theme-toggle-btn:hover {
-    background: rgba(255,255,255,0.26) !important;
+    background: var(--bg-surface-2) !important;
     transform: scale(1.1) rotate(15deg);
 }
 
@@ -1073,7 +1073,13 @@ html.dark {
 
 /* Topbar custom */
 .topbar-custom {
-    border-bottom: 1px solid var(--border-custom);
+    position: sticky;
+    top: 0;
+    z-index: 990; /* below sidebar 1000 and popover 1060 */
+    background-color: var(--bg-surface) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid var(--border-custom) !important;
 }
 
 .vertical-divider {
@@ -1863,11 +1869,10 @@ html.dark .btn-sidebar-toggle-header {
 }
 
 .popover-recepcion {
-    position: absolute !important;
-    left: 100% !important;
+    position: fixed !important;
+    left: 275px !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
-    margin-left: 15px !important;
     width: 320px !important;
     z-index: 1060 !important;
     background-color: var(--modal-bg) !important;
@@ -1875,6 +1880,11 @@ html.dark .btn-sidebar-toggle-header {
     border-radius: 14px !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
     animation: popoverFadeIn 0.2s ease-out;
+    transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+html.sidebar-collapsed .popover-recepcion {
+    left: 85px !important;
 }
 
 @keyframes popoverFadeIn {
