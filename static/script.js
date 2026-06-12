@@ -387,11 +387,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Seleccionar el motivo en el select
         const sel = document.getElementById('edit-motivo-select');
+        
+        // Limpiar opción heredada temporal previa si existe
+        const tempOpt = sel.querySelector('.temp-legacy-option');
+        if (tempOpt) tempOpt.remove();
+
+        let found = false;
         for (let opt of sel.options) {
             if (opt.value === razones || razones.includes(opt.value)) {
                 opt.selected = true;
+                found = true;
                 break;
             }
+        }
+
+        // Si es un motivo heredado (legacy) que ya no está en la lista actual, creamos opción temporal
+        if (!found && razones) {
+            const opt = document.createElement('option');
+            opt.value = razones;
+            opt.textContent = razones;
+            opt.className = 'temp-legacy-option';
+            opt.selected = true;
+            sel.appendChild(opt);
         }
 
         new bootstrap.Modal(document.getElementById('editModal')).show();
