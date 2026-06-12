@@ -423,9 +423,10 @@ body > .navbar {
 }
 
 .empty-state {
-    background: #ffffff;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-color) !important;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    box-shadow: var(--shadow-card) !important;
 }
 
 .empty-state-error {
@@ -1920,4 +1921,54 @@ html.sidebar-collapsed .popover-recepcion {
     border-style: solid;
     border-color: transparent var(--modal-bg) transparent transparent;
     margin-right: -1px;
+}
+
+/* Corregir contraste de tarjetas de filtro no seleccionadas (unchecked) en modo oscuro */
+html.dark #label-filtro-todas {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-primary-custom) !important;
+}
+html.dark #label-filtro-en-tiempo {
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.15) !important;
+    color: #4ade80 !important;
+}
+html.dark #label-filtro-cerca-vencer {
+    background: rgba(245, 158, 11, 0.08) !important;
+    border-color: rgba(245, 158, 11, 0.15) !important;
+    color: #fbbf24 !important;
+}
+html.dark #label-filtro-fuera-tiempo {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border-color: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+html.dark #label-filtro-en-revision {
+    background: rgba(6, 182, 212, 0.08) !important;
+    border-color: rgba(6, 182, 212, 0.15) !important;
+    color: #58a6ff !important;
+}
+
+/* Forzar color de texto de elementos KPI internos cuando no están seleccionados en modo oscuro */
+html.dark .filter-card .kpi-title {
+    color: var(--text-muted-custom) !important;
+}
+html.dark .filter-card .kpi-title i {
+    color: var(--text-muted-custom) !important;
+}
+html.dark .filter-card .kpi-value.text-primary-custom {
+    color: var(--text-primary-custom) !important;
+}
+html.dark .filter-card .kpi-value.text-success-custom {
+    color: #4ade80 !important;
+}
+html.dark .filter-card .kpi-value.text-warning-custom {
+    color: #fbbf24 !important;
+}
+html.dark .filter-card .kpi-value.text-danger-custom {
+    color: #f87171 !important;
+}
+html.dark .filter-card .kpi-value.text-info-custom {
+    color: #58a6ff !important;
 }
