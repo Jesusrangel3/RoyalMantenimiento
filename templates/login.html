@@ -6,12 +6,55 @@
     <title>Iniciar Sesión - Taller CIF</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <script>(function(){var t=localStorage.getItem('cif-theme');if(t==='dark')document.documentElement.classList.add('dark');})();</script>
     <style>
-        body { background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { border-radius: 1rem; max-width: 420px; width: 100%; }
+        body {
+            background-color: var(--bg-main) !important;
+            background-image: var(--bg-main-gradient) !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.25s ease !important;
+        }
+        .login-card {
+            border-radius: 1.25rem !important;
+            max-width: 420px;
+            width: 100%;
+            background-color: var(--bg-surface) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-hover) !important;
+        }
+        #login-theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--bg-surface-2) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: 8px;
+            padding: 0.45rem 0.7rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+            z-index: 999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        #login-theme-toggle:hover {
+            background-color: var(--bg-surface) !important;
+            border-color: var(--accent) !important;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
+    <!-- Toggle de tema en pantalla login -->
+    <button id="login-theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+        <i class="bi bi-moon-fill"></i>
+    </button>
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-11 col-sm-8 col-md-6 col-lg-5">
@@ -38,14 +81,14 @@
                             <div class="mb-3">
                                 <label for="username" class="form-label fw-semibold">Usuario</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
                                     <input type="text" class="form-control" id="username" name="username" placeholder="Ingresa tu usuario" required autofocus>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label for="password" class="form-label fw-semibold">Contraseña</label>
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light"><i class="bi bi-lock"></i></span>
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
                                     <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña" required>
                                 </div>
                             </div>
@@ -59,5 +102,20 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+    <script>
+        // Sincronizar ícono del botón de login con el tema
+        (function(){
+            var btn = document.getElementById('login-theme-toggle');
+            if(btn && document.documentElement.classList.contains('dark')){
+                btn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            }
+            if(btn) btn.addEventListener('click', function(){
+                var isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('cif-theme', isDark ? 'dark' : 'light');
+                btn.innerHTML = isDark ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-fill"></i>';
+            });
+        })();
+    </script>
 </body>
 </html>
