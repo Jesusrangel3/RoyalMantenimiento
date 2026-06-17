@@ -20,14 +20,25 @@ app = Flask(__name__)
 
 # --- Configuración General de la App ---
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'una-clave-secreta-muy-dificil')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+
+db_url = os.environ.get(
     'DATABASE_URL', 
     'sqlite:///' + os.path.join(app.root_path, 'taller.db')
-).replace("postgres://", "postgresql://", 1)
+)
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
-migrate = Migrate(app, db) 
+migrate = Migrate(app, db)
+
+with app.app_context():
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Advertencia: No se pudieron auto-crear las tablas de la base de datos: {e}")
 
 # --- Configuración de SocketIO ---
 socketio = SocketIO(app)
