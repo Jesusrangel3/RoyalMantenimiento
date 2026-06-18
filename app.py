@@ -20,14 +20,25 @@ app = Flask(__name__)
 
 # --- Configuración General de la App ---
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'una-clave-secreta-muy-dificil')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+
+db_url = os.environ.get(
     'DATABASE_URL', 
     'sqlite:///' + os.path.join(app.root_path, 'taller.db')
-).replace("postgres://", "postgresql://", 1)
+)
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
-migrate = Migrate(app, db) 
+migrate = Migrate(app, db)
+
+with app.app_context():
+    try:
+        db.create_all()
+    except Exception as e:
+        print(f"Advertencia: No se pudieron auto-crear las tablas de la base de datos: {e}")
 
 # --- Configuración de SocketIO ---
 socketio = SocketIO(app)
@@ -156,8 +167,8 @@ def get_entradas_pendientes():
             # Usuarios limitados a una sola área específica
             query = TallerEntrada.query.filter_by(area_id=current_user.area_id)
             
-            # Si el usuario es Técnico pero NO Autorizador, solo ve pendientes
-            if current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar:
+            # Si el usuario es Técnico pero NO Autorizador, solo ve pendientes (excepto si tiene rol Mantenimiento)
+            if current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar and current_user.role != 'Mantenimiento':
                  query = query.filter_by(status='pendiente')
             else: 
                  query = query.filter(TallerEntrada.status.in_(['pendiente', 'en_revision']))
@@ -610,7 +621,7 @@ def registrar_entrada():
         nueva_entrada = TallerEntrada(
             numero_economico=data['numero_economico'],
             tipo_vehiculo=data['tipo_vehiculo'],
-            razones=data['motivo_de_entrada'], 
+            razones=data['razones'], 
             otros_motivos=data.get('otros_motivos', '').strip(),
             dias_estimados=int(data['dias_estimados']),
             fecha_entrada=fecha_para_bd,
@@ -621,7 +632,7 @@ def registrar_entrada():
         db.session.commit()
         
         primera_nota = Nota(
-            text=f"Entrada registrada por {current_user.username} con Motivo: {data['motivo_de_entrada']}",
+            text=f"Entrada registrada por {current_user.username} con Motivo: {data['razones']}",
             user_id=current_user.id,
             taller_entrada_id=nueva_entrada.id
         )
@@ -666,7 +677,7 @@ def editar_entrada(id):
             cambios.append(f"Días estimados cambiados de {entrada.dias_estimados} a {nuevos_dias}")
             entrada.dias_estimados = nuevos_dias
         
-        nuevo_motivo = data.get('motivo_de_entrada', entrada.razones)
+        nuevo_motivo = data.get('razones', entrada.razones)
         if nuevo_motivo != entrada.razones:
             cambios.append(f"Motivo de entrada actualizado a: '{nuevo_motivo}'")
             entrada.razones = nuevo_motivo
@@ -725,10 +736,82 @@ def solicitar_revision(id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/entradas/<int:id>/status', methods=['PUT'])
+@login_required
+def update_entrada_status(id):
+    try:
+        data = request.get_json() or {}
+        nuevo_status = data.get('status')
+        if not nuevo_status:
+            return jsonify({'error': 'Status requerido'}), 400
+            
+        entrada = db.session.get(TallerEntrada, id)
+        if not entrada:
+            return jsonify({'error': 'Entrada no encontrada'}), 404
+
+        # Validación de Área
+        if current_user.area_id is not None and entrada.area_id != current_user.area_id and current_user.role != 'Superusuario':
+             return jsonify({'error': 'No autorizado para esta entrada'}), 403
+
+        if nuevo_status == 'en_revision':
+            # Permitir a usuarios con perm_taller_tecnico, perm_taller_autorizar o Superusuario
+            if not current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+                return jsonify({'error': 'No autorizado'}), 403
+
+            entrada.status = 'en_revision'
+            
+            nota_cierre = Nota(
+                text=f"{current_user.username} envió la unidad a revisión para su autorización.",
+                user_id=current_user.id,
+                taller_entrada_id=id
+            )
+            db.session.add(nota_cierre)
+            db.session.commit()
+            
+            socketio.emit('cambio_detectado', {'message': 'Entrada enviada a revisión'})
+            return jsonify(entrada.to_dict())
+            
+        elif nuevo_status == 'archivado':
+            # Permitir a usuarios con perm_taller_autorizar o Superusuario o Mantenimiento
+            if not current_user.perm_taller_autorizar and current_user.role not in ('Superusuario', 'Mantenimiento'):
+                return jsonify({'error': 'No autorizado'}), 403
+
+            if entrada.status != 'en_revision':
+                return jsonify({'error': 'Esta entrada no está pendiente de autorización'}), 400
+
+            entrada.status = 'archivado'
+            
+            nota_final = Nota(
+                text=f"{current_user.role} ({current_user.username}) autorizó la salida de la unidad.",
+                user_id=current_user.id,
+                taller_entrada_id=id
+            )
+            db.session.add(nota_final)
+            db.session.commit()
+            
+            socketio.emit('cambio_detectado', {'message': 'Entrada autorizada y archivada'})
+            return jsonify(entrada.to_dict())
+            
+        elif nuevo_status == 'pendiente':
+            if not current_user.perm_taller_tecnico and not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+                return jsonify({'error': 'No autorizado'}), 403
+            
+            entrada.status = 'pendiente'
+            db.session.commit()
+            socketio.emit('cambio_detectado', {'message': 'Entrada reabierta'})
+            return jsonify(entrada.to_dict())
+            
+        else:
+            return jsonify({'error': f'Status {nuevo_status} no válido'}), 400
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/entradas/<int:id>/autorizar', methods=['PUT'])
 @login_required
 def autorizar_salida(id):
-    if not current_user.perm_taller_autorizar and current_user.role != 'Superusuario':
+    if not current_user.perm_taller_autorizar and current_user.role not in ('Superusuario', 'Mantenimiento'):
         return jsonify({'error': 'No autorizado'}), 403
         
     try:
@@ -972,6 +1055,7 @@ def create_data():
         db.session.query(Checklist).delete()
         db.session.query(Nota).delete()
         db.session.query(TallerEntrada).delete()
+        db.session.query(Vehicle).delete()
         db.session.query(User).delete()
         db.session.query(Area).delete()
         db.session.commit()
@@ -1008,7 +1092,48 @@ def create_data():
 
         db.session.add_all([user_r_sal, user_m_sal, user_gerente, user_super])
         db.session.commit()
-        print("Datos iniciales creados con permisos.")
+
+        # Crear vehículos de prueba
+        v1 = Vehicle(samsara_id="mock-1", name="T-101", operation="Salamanca")
+        v2 = Vehicle(samsara_id="mock-2", name="T-102", operation="Salamanca")
+        v3 = Vehicle(samsara_id="mock-3", name="R-201", operation="Salamanca")
+        v4 = Vehicle(samsara_id="mock-4", name="R-202", operation="Laredo")
+        db.session.add_all([v1, v2, v3, v4])
+        db.session.commit()
+
+        # Crear entradas de taller de prueba
+        e1 = TallerEntrada(
+            numero_economico="T-101",
+            tipo_vehiculo="Tractocamion",
+            razones="Falla Mecanica Motor",
+            otros_motivos="Ruido extraño en motor al acelerar",
+            dias_estimados=3,
+            fecha_entrada=datetime.utcnow(),
+            status="pendiente",
+            area_id=area1.id,
+            user_id=user_r_sal.id
+        )
+        e2 = TallerEntrada(
+            numero_economico="R-201",
+            tipo_vehiculo="Remolque",
+            razones="Falla Frenos",
+            otros_motivos="Falta de presión en balatas traseras",
+            dias_estimados=2,
+            fecha_entrada=datetime.utcnow(),
+            status="en_revision",
+            area_id=area1.id,
+            user_id=user_r_sal.id
+        )
+        db.session.add_all([e1, e2])
+        db.session.commit()
+
+        # Crear notas de prueba
+        n1 = Nota(text="Entrada registrada por recepcion_sal con Motivo: Falla Mecanica Motor", user_id=user_r_sal.id, taller_entrada_id=e1.id)
+        n2 = Nota(text="Mantenimiento marcó como 'Completada'. Pendiente de autorización por Recepción.", user_id=user_m_sal.id, taller_entrada_id=e2.id)
+        db.session.add_all([n1, n2])
+        db.session.commit()
+
+        print("Datos iniciales creados con permisos, vehículos y entradas de taller.")
     except Exception as e:
         db.session.rollback()
         print(f"Error al crear datos: {e}")

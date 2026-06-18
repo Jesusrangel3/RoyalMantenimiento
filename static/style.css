@@ -32,7 +32,7 @@ body {
 .badge-en-revision  { background-color: #cfe2ff; color: #084298; }
 
 /* --- Filtros Rápidos --- */
-.btn-group .btn-check:checked + .btn-outline-secondary { background-color: #6c757d; color: #fff; }
+.btn-group .btn-check:checked + .btn-outline-secondary { background-color: #7d726c; color: #fff; }
 .btn-group .btn-check:checked + .btn-outline-success   { background-color: #198754; color: #fff; }
 .btn-group .btn-check:checked + .btn-outline-warning   { background-color: #ffc107; color: #000; }
 .btn-group .btn-check:checked + .btn-outline-danger    { background-color: #dc3545; color: #fff; }
